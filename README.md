@@ -15,14 +15,20 @@
 推荐目录结构示例：
 
 ```text
+common/dev/skills/
+  └── large-feature-ai-coding/
+      └── SKILL.md
 frontend/ui-ux/skills/
-  ├── skill-A/
-  │   ├── SKILL.md
-  │   └── ...
-  └── skill-B/
-      ├── SKILL.md
-      └── ...
+  └── edge-gradient-mask/
+      └── SKILL.md
 ```
+
+## Skills 一览
+
+| 名称 | 路径 | 简介 |
+|---|---|---|
+| `large-feature-ai-coding` | `common/dev/skills/large-feature-ai-coding` | 中大型需求的 AI Agent Coding 协作工作流，涵盖开发设计文档、执行计划、多会话实施记录与进度台账 |
+| `qiuye-edge-gradient-mask` | `frontend/ui-ux/skills/edge-gradient-mask` | 为可滚动区域、视口、卡片等元素添加边缘渐变淡出遮罩 |
 
 ## Skills 安装指引
 
