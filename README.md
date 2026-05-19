@@ -29,6 +29,7 @@ frontend/ui-ux/skills/
 |---|---|---|
 | `large-feature-ai-coding` | `common/dev/skills/large-feature-ai-coding` | 中大型需求的 AI Agent Coding 协作工作流，涵盖开发设计文档、执行计划、多会话实施记录与进度台账 |
 | `qiuye-edge-gradient-mask` | `frontend/ui-ux/skills/edge-gradient-mask` | 为可滚动区域、视口、卡片等元素添加边缘渐变淡出遮罩 |
+| `motion-recipes` | `frontend/ui-ux/skills/motion-recipes` | Motion 动效案例集：layoutId 导航切换、AnimatePresence 内容过渡等经过验证的实现方案与最佳实践 |
 
 ## Skills 安装指引
 
