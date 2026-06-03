@@ -2,12 +2,13 @@
 name: motion-recipes
 description: >-
   Motion 动效案例集：提供经过验证的 Motion (framer-motion) 动效实现方案与最佳实践。
-  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、手势交互、列表动画等常见场景。
+  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、popover auto-height 过渡、手势交互、列表动画等常见场景。
   每个 case 包含完整模板代码、常见坑位修复与验收清单，确保 AI Agent 能稳定复刻高质量动效。
   Triggers on: "motion", "framer-motion", "layoutId", "AnimatePresence",
   "layout animation", "nav 切换动效", "tabs 动画", "活跃态滑动",
   "内容过渡动画", "方向感知动画", "spring animation", "motion 最佳实践",
-  "motion recipes", "动效案例", "layout 动画遮挡".
+  "motion recipes", "动效案例", "layout 动画遮挡", "popover 高度突变",
+  "auto height 动画", "内容高度变化", "popLayout", "height jump".
 ---
 
 # Motion Recipes — 动效案例集
@@ -80,6 +81,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | # | Case | 文件 | 关键词 / 适用场景 |
 |---|---|---|---|
 | 1 | layoutId 导航切换 + 内容过渡 | [cases/layout-id-nav-switch.md](cases/layout-id-nav-switch.md) | `layoutId`、Nav / Tabs / Segmented Control 活跃态滑动、方向感知内容过渡、indicator 遮挡修复 |
+| 2 | AnimatePresence 内容切换 + Popover 高度平滑过渡 | [cases/animate-presence-auto-height-popover.md](cases/animate-presence-auto-height-popover.md) | `AnimatePresence`、`popLayout`、Popover / Tooltip / Card 内容行数变化、auto-height 高度突变修复 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -98,6 +100,14 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「修复 layoutId 动画遮挡其他选项的问题」
 - 设置页侧边栏、Tabs、Filter Pills、Dashboard 二级导航
 
+### AnimatePresence 内容切换 + Popover 高度平滑过渡 → Case 2
+
+- 「popover 切换内容时高度突然跳变」
+- 「上一步/下一步时 content 行数不同，高度突变」
+- 「AnimatePresence mode wait 导致新内容挂载时高度闪一下」
+- 「修复 auto-height / 动态内容高度过渡」
+- Tour、Onboarding Popover、Tooltip Card、Command Palette、Stepper、Wizard、Help Bubble
+
 <!--
 ### [未来 Case 名称] → Case N
 - 「...」
@@ -114,6 +124,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 3. 遵循以下通用动效设计模式：
    - 进入动画：`opacity: 0 → 1` + 轻微位移（4–12px）
    - 退出动画：比进入快 20–30%，位移更小
-   - `AnimatePresence mode="wait"` 避免新旧内容重叠
+   - 固定高度内容可用 `AnimatePresence mode="wait"` 避免新旧内容重叠
+   - 自动高度内容（popover/card 内容行数变化）优先读 Case 2，使用参与 layout 的容器 + `mode="popLayout"`，避免高度突变
    - 方向感知：根据索引变化计算方向，传入 `custom` prop
 4. 完成后检查：TypeScript 类型、z-index 层级、是否有重复样式冲突。
