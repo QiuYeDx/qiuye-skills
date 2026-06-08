@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Pitfalls"
+  short_description: "前端高频 UI/CSS 渲染与交互避坑 case 集合指南"
+  default_prompt: "Use $frontend-pitfalls to diagnose and fix a tricky frontend UI pitfall."
