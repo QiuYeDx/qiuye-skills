@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Pitfall Guard"
+  short_description: "Maintain project-level pitfall guard skills"
+  default_prompt: "Use $project-pitfall-guard to establish or update a project-level pitfall guard skill."
