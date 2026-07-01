@@ -29,6 +29,9 @@ qiuye-skills/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
     │   └── cases/backdrop-filter-glass-blur.md
+    ├── geometric-mask-transition/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml
     └── motion-recipes/
         ├── SKILL.md
         ├── CONTRIBUTING.md
