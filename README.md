@@ -80,6 +80,18 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-edge-gr
 
 ---
 
+#### `geometric-mask-transition` — 几何遮罩与揭幕过渡
+
+通用的几何遮罩 / 揭幕过渡实现方法论，指导 AI Agent 用独立遮罩层、少量几何变量和稳定的时序模型实现圆形揭幕、斜向 wipe、clip-path、mask-image、SVG mask、canvas/WebGL matte 等过渡效果。
+
+**触发词：** reveal transition、geometric mask、clip-path reveal、radial wipe、aperture reveal、几何遮罩、揭幕、遮罩过渡、图形过渡
+
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill geometric-mask-transition
+```
+
+---
+
 #### `frontend-pitfalls` — 前端避坑 Case 集合
 
 沉淀真实项目中容易被 AI Agent 或开发者误用的 UI/CSS/交互实现坑位，给出稳定结构、排查顺序、推荐模板与验收清单。当前包含 1 个 case：
