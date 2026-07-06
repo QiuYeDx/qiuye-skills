@@ -1,0 +1,4 @@
+interface:
+  display_name: "Smooth Corners"
+  short_description: "Implement progressive smooth corners for frontend UI."
+  default_prompt: "Use $qiuye-smooth-corners to add Figma/iOS-style smooth corners to this frontend UI."

@@ -111,6 +111,18 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill frontend-pitf
 
 ---
 
+#### `qiuye-smooth-corners` — 平滑圆角实现指南
+
+面向前端项目实现 Figma / iOS 风格平滑圆角，优先使用 QiuYe UI 的 shadcn registry 组件，并提供 `@qiuyedx/smooth-corners` npm 包、无依赖内联 helper 与尺寸感知 observer 方案。
+
+**触发词：** smooth corners、corner smoothing、continuous corners、squircle、superellipse、平滑圆角、圆角平滑、超椭圆圆角、连续圆角
+
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-corners
+```
+
+---
+
 #### `motion-recipes` — Motion 动效案例集
 
 经过验证的 Motion (framer-motion) 动效实现方案与最佳实践，每个 case 包含完整模板代码、常见坑位修复与验收清单。当前包含 3 个 case：
