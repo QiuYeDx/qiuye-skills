@@ -31,7 +31,11 @@ qiuye-skills/
     │   └── cases/backdrop-filter-glass-blur.md
     ├── geometric-mask-transition/
     │   ├── SKILL.md
-    │   └── agents/openai.yaml
+    │   ├── agents/openai.yaml
+    │   └── references/
+    │       ├── technique-selection.md
+    │       ├── implementation-recipes.md
+    │       └── validation.md
     └── motion-recipes/
         ├── SKILL.md
         ├── CONTRIBUTING.md
@@ -85,9 +89,9 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-edge-gr
 
 #### `geometric-mask-transition` — 几何遮罩与揭幕过渡
 
-通用的几何遮罩 / 揭幕过渡实现方法论，指导 AI Agent 用独立遮罩层、少量几何变量和稳定的时序模型实现圆形揭幕、斜向 wipe、clip-path、mask-image、SVG mask、canvas/WebGL matte 等过渡效果。
+面向生产实现的几何遮罩 / 揭幕转场工作流。先明确 source、target、形状内外关系和 DOM 提交点，再在 transform cover、clip-path、CSS alpha mask、View Transition API、SVG 与 Canvas/WebGL 中正确选型；同时覆盖任意原点半径计算、首尾帧、并发取消、resize、reduced motion、浏览器回退和逐帧视觉验收。
 
-**触发词：** reveal transition、geometric mask、clip-path reveal、radial wipe、aperture reveal、几何遮罩、揭幕、遮罩过渡、图形过渡
+**触发词：** reveal transition、geometric mask、clip-path reveal、radial wipe、aperture reveal、view transition reveal、几何遮罩、揭幕、遮罩过渡、图形过渡、页面转场遮罩
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill geometric-mask-transition
