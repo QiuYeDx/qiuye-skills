@@ -10,6 +10,7 @@
 - [D. View Transition API](#d-view-transition-api)
 - [E. SVG clipPath 与 mask](#e-svg-clippath-与-mask)
 - [F. Canvas 和 WebGL matte](#f-canvas-和-webgl-matte)
+- [G. Staggered grid / matrix transition](#g-staggered-grid--matrix-transition)
 - [浏览器能力与回退](#浏览器能力与回退)
 - [性能判断](#性能判断)
 
@@ -30,6 +31,9 @@
 | 圆内 target、圆外 source | 上层 target | `clip-path: circle(...)` 从小到大 |
 | 圆内 target、圆外 source，边缘需羽化 | 上层 source | alpha mask 在 source 中挖透明孔，target 放下层 |
 | 先被品牌色完全遮住，再显示新页面 | 独立 cover | `transform`/`clip-path` cover-swap-uncover |
+| 纯色 tile 依次覆盖，完整后交换内容 | 独立 tile matrix | DOM/CSS transform cover-swap-uncover |
+| target 按互不相连的 tile 直接显现 | 上层 target | 单 target + SVG multi-rect clip/mask |
+| source 按互不相连的 tile 依次退出 | 上层 source | 下层 target + source SVG multi-rect alpha mask |
 | 浏览器保存真实 old/new 页面快照 | `::view-transition-old/new(...)` | View Transition API |
 
 不要把纯色 cover 误写成 source。纯色 cover 的孔洞只能露出背后内容，孔洞外不会继续显示旧页面细节。
@@ -144,6 +148,8 @@
 
 完成后移除 source，或清除它的 mask。不要让已不可见的 source 继续占据交互和合成资源。
 
+这类“上层 source 自身消失、逐渐露出下层 target”的结构属于 `source-exit` / `outgoing-view mask-out`。target 必须先 ready；提交前取消时恢复 source，完成时移除 source 并提升 target。若复杂 mask 不可用，优先让 source 淡出或直接提交，保持 source-over-target 语义，不要偷偷换成 incoming target reveal。
+
 ## D. View Transition API
 
 使用浏览器快照 source/target，适合 document 内状态切换、框架已提供集成的 route transition，或显式启用的 same-origin cross-document transition。
@@ -235,6 +241,18 @@ await transition.finished;
 
 始终让真实 DOM 负责语义、焦点和最终交互。处理 devicePixelRatio、resize、context loss、暂停后台渲染和卸载资源。若只需要一个圆或线性 wipe，退回 CSS。
 
+## G. Staggered grid / matrix transition
+
+先确认 tile 是独立 cover，还是 target 的可见区域：
+
+- **Tile cover**：tile 内是纯色/装饰层。全部 tile 完整覆盖后提交 target，再让 tile 退场。这是 transactional `cover-swap-uncover`。
+- **Target tile reveal**：tile 内直接显示 target，tile 外保留 source。把 multi-rect SVG clip/mask 作用于单个 target，这是 `reveal-only`。
+- **Source tile exit**：上层 source 被切片后依次消失，target 在下层。这是 outgoing/source exit，不要误称 target entrance。
+
+大量 tile 共享一个全局 progress，并根据 index 或距离场生成 delay。不要为每个 tile 创建 timer，也不要复制几十到几百份 source/target subtree。
+
+涉及方块矩阵、mosaic、wavefront 或 distance-based stagger 时，阅读 [staggered-grid-transitions.md](staggered-grid-transitions.md) 获取等尺寸网格、波前公式、SVG mask 与生命周期实现。
+
 ## 浏览器能力与回退
 
 使用 feature detection，不使用 UA sniff：
@@ -255,7 +273,7 @@ const supportsViewTransition = "startViewTransition" in document;
 回退顺序：
 
 1. 保证内容提交和交互正确。
-2. 使用已有的简短 opacity/transform transition。
+2. 使用与原架构同层级语义的简短 opacity/transform transition，例如 source-exit 回退为上层 source 淡出。
 3. 最后才是立即切换。
 
 不要用 polyfill 模拟完整 View Transition snapshot，除非项目已经采用且用户明确要求。
@@ -265,5 +283,6 @@ const supportsViewTransition = "startViewTransition" in document;
 - Transform cover 通常故障面最小，但超大旋转/缩放图层仍可能占用大量纹理内存。
 - 简单 `clip-path` 经常表现良好，但是否合成取决于浏览器、形状和内容；不要承诺“必定 GPU 加速”。
 - Gradient/SVG mask 通常需要逐像素合成或 repaint。软边越宽、面积越大、下层内容越复杂，代价越高。
+- 大量 DOM tile transform 与 SVG multi-rect mask 的成本模型不同。前者可能制造过多图层，后者可能触发大面积逐像素合成；按实际架构和目标设备测量。
 - `filter`、`backdrop-filter`、mix-blend-mode 与 mask 叠加时尤其需要真机检查。
 - 用浏览器 Performance/Layers 工具验证长任务、paint 和内存。只在测量证明有益时加临时 `will-change`。

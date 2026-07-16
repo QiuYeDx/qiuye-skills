@@ -2,19 +2,20 @@
 name: geometric-mask-transition
 description: >-
   Design, implement, debug, and validate geometric reveal transitions for UI
-  state changes, route handoffs, loading exits, modals, media, and scene
-  changes. Use for circular or elliptical apertures, directional and diagonal
-  wipes, clip-path reveals, CSS mask-image transitions, SVG masks, View
-  Transition API reveals, and canvas/WebGL mattes. Covers choosing the correct
-  layer architecture, computing coverage from any origin, synchronizing DOM
-  swaps, handling interruption and cleanup, reduced motion, browser fallbacks,
-  performance, and frame-by-frame visual QA. Do not use for static scroll-edge
-  fades or routine opacity/slide micro-interactions. Triggers on: "reveal
-  transition", "geometric mask", "mask transition", "clip-path reveal",
-  "radial wipe", "aperture reveal", "shape wipe", "loading reveal", "scene
-  transition", "page reveal", "mask-image animation", "transition matte",
-  "view transition reveal", "几何遮罩", "揭幕", "遮罩过渡", "图形过渡",
-  "圆形揭幕", "渐变遮罩过渡", "页面转场遮罩".
+  state changes, route handoffs, loading exits, modals, media, and scenes. Use
+  for apertures, directional wipes, staggered tile/grid/mosaic reveals and
+  exits, matrix-wave transitions, incoming-view reveals, outgoing-view
+  mask-outs, clip-path, CSS mask-image, SVG masks, View Transition API, and
+  canvas/WebGL mattes. Covers layer architecture, arbitrary-origin geometry,
+  DOM commit timing, interruption, cleanup, reduced motion, fallbacks,
+  performance, and frame-by-frame QA. Do not use for static edge fades or
+  routine opacity/slide micro-interactions. Triggers on: "reveal transition",
+  "geometric mask", "clip-path reveal", "radial wipe", "shape wipe",
+  "transition matte", "tile/grid/mosaic reveal", "matrix transition",
+  "source exit", "outgoing view mask-out", "wavefront stagger", "几何遮罩",
+  "揭幕", "遮罩过渡", "图形过渡", "圆形揭幕", "矩阵转场", "方块揭示",
+  "网格揭示", "马赛克揭示", "方块矩阵", "涟漪转场", "源视图退场",
+  "退场遮罩".
 ---
 
 # Geometric Mask Transition
@@ -26,7 +27,7 @@ description: >-
 1. 先检查项目现有的框架、动画库、路由、样式方案、浏览器范围和 reduced-motion 处理。沿用已有依赖和组件约定，不要为一个转场擅自安装新库。
 2. 明确 source、target、转场作用域、几何原点、运动方向、内容提交时机、输入策略和中断策略。信息不全时，根据现有交互保守推断并记录假设。
 3. 先选择图层架构，再选择技术原语。`clip-path`、CSS mask、覆盖层和 View Transition 不是可随意互换的写法。
-4. 在实现前阅读 [references/technique-selection.md](references/technique-selection.md)。涉及代码时再阅读 [references/implementation-recipes.md](references/implementation-recipes.md)。完成前必须按 [references/validation.md](references/validation.md) 验收。
+4. 在实现前阅读 [references/technique-selection.md](references/technique-selection.md)。涉及代码时再阅读 [references/implementation-recipes.md](references/implementation-recipes.md)。涉及网格、矩阵、方块、mosaic 或 distance-based stagger 时，还必须阅读 [references/staggered-grid-transitions.md](references/staggered-grid-transitions.md)。完成前必须按 [references/validation.md](references/validation.md) 验收。
 5. 让初始帧在浏览器首次绘制前成立，让完成帧在清理前稳定。把取消、重复触发、resize、卸载和异常路径都纳入同一生命周期。
 6. 在真实浏览器中检查中间帧和最终帧。只通过类型检查、lint 或最终截图，不能证明转场正确。
 
@@ -35,6 +36,7 @@ description: >-
 编码前回答以下问题：
 
 - **谁被揭示**：target 内容、source 内容，还是一个纯色/品牌色覆盖层？
+- **谁被裁剪或遮罩**：incoming target、outgoing source，还是独立 cover？
 - **形状内外分别显示什么**：圆内是 target、圆外是 source，还是反过来？
 - **DOM 何时变化**：动画全程共存、完全遮住后交换，还是由浏览器快照 old/new 状态？
 - **坐标属于谁**：viewport、容器 border box、触发器中心，还是媒体自身坐标？
@@ -43,12 +45,25 @@ description: >-
 
 若这些问题没有答案，不要先写动画参数。
 
+## 先用术语归类
+
+- **source / outgoing view**：状态 A，转场开始时可见的旧内容。
+- **target / incoming view**：状态 B，转场完成后应成为普通内容层的新内容。
+- **cover-swap-uncover / transactional handoff**：独立 cover 入场，完整遮挡时提交 target，再让 cover 退场。
+- **reveal-only / incoming-view reveal**：target 提前位于 source 上方，通过自身的 clip 或 mask 直接显现；完成后移除几何约束。
+- **source-exit / outgoing-view mask-out**：ready target 提前位于 source 下方，source 通过自身的 clip 或 mask 逐步退出并露出 target。
+
+不要把 cover、incoming reveal 和 source exit 混为一种转场。三者的中间帧、提交点、取消策略和 DOM 共存要求都不同。
+
 ## 选择正确架构
 
 | 需求 | 首选架构 | 关键原因 |
 |---|---|---|
 | 路由/状态必须在不可见时安全交换 | 覆盖层 `cover -> commit -> uncover` | 不要求 source 与 target 同时存在，最稳健 |
+| 方块矩阵依次遮挡，完整后交换内容再退场 | 独立 DOM/CSS tile cover | 每个 tile 只负责遮挡，提交点仍是完整 cover 帧 |
 | target 从某点以硬边界展开 | 对 target 使用 `clip-path` | 语义直接，几何简单，通常比逐像素 mask 便宜 |
+| target 按多个互不相连的 tile 直接显现 | 单个 target + SVG `clipPath`/alpha mask | 避免为每个 tile 复制整棵 target DOM |
+| source 按多个 tile 依次退出并露出下层 target | 单个 source + SVG alpha mask | source 保持真实内容，只让 mask rect 逐格缩小 |
 | source 外圈保留、中心逐渐露出 target，或需要软边 | 对 source 使用 alpha mask 挖洞 | CSS mask 支持透明度过渡和反向孔洞 |
 | 已有页面/路由适合浏览器快照 | View Transition API | 自动提供 old/new 快照，但必须处理默认 crossfade 与回退 |
 | 复杂矢量形状、路径或多孔洞 | SVG `clipPath` / `mask` | 坐标和组合能力强，但必须显式控制 units 与 mask 类型 |
@@ -66,7 +81,7 @@ description: >-
 
 ## 生命周期
 
-### Reveal-only
+### Reveal-only / incoming-view reveal
 
 用于 target 已挂载且只需被揭示的场景：
 
@@ -75,7 +90,7 @@ description: >-
 3. 从隐藏几何动画到完整覆盖几何。
 4. 把 target 恢复成普通状态，例如移除 `clip-path`，再执行完成回调。
 
-### Transactional handoff
+### Transactional handoff / cover-swap-uncover
 
 用于路由或互斥状态：
 
@@ -87,12 +102,25 @@ description: >-
 
 不要用固定延迟猜测 React、Vue 或路由何时提交完成。使用框架提供的 transition 集成、同步提交能力、layout effect、明确的 ready promise，或至少等待提交后的下一次绘制。
 
+### Source-exit / outgoing-view mask-out
+
+用于 target 可提前 ready，且希望状态 A 自身逐步退场的场景：
+
+1. 等待 target ready，把它挂载到 source 下方并暂时设为 `aria-hidden`/`inert`。
+2. 在首次绘制前给 source 建立完整可见的 clip/mask；中间帧始终是上层 source 与下层 target 的真实组合。
+3. 让 source 的可见几何从完整覆盖逐步缩到空，消失区域直接露出 target。
+4. 完成时原子提升 target 为普通内容层，移除 source、mask、defs 和临时层级样式。
+5. 提交前取消时恢复 source 并移除 target；完成或已提交后取消时保留 target。
+
+source 通常是已有的持久节点，不要把它标成可批量删除的 transaction node。只给临时 target/defs 绑定事务 id，并在 source 上使用可恢复的临时 class/inline style。
+
 ### Interruption
 
 - 为每次事务创建唯一 token 或 `AbortController`。新事务开始时使旧事务失效。
 - 在每个 `await` 之后检查事务是否仍为当前事务。
 - 在 `finally` 中取消 WAAPI/Motion 控制器、RAF、timer、订阅和 observer，并恢复临时 style、`inert`、焦点策略与 overlay 状态。
 - 明确取消后的可见状态。若内容已经提交，通常保留新内容并立即移除遮罩；不要回滚一半的异步导航。
+- 对 source-exit 明确区分提交前后：提交前取消恢复完整 source；resize/reduced motion 或完成路径提交完整 target，不能停在半透明或半遮罩帧。
 
 ## 几何与坐标
 
@@ -115,6 +143,8 @@ function radiusToCover(w: number, h: number, x: number, y: number) {
 
 在容器 resize、设备旋转或 origin 移动时重新计算。若 resize 发生在动画中，更新终点或立即完成到新的安全终态，不要继续使用旧半径留下露角。
 
+等尺寸网格无法整除容器时，让矩阵略微超出容器并由 stage 裁剪，或明确允许边缘 partial tile；不要静默拉伸最后一行/列。完整帧为 tile 预留约 `0.5-1px` 重叠或轻微 overscale，避免高 DPR 下出现发丝缝。
+
 ## 动画约束
 
 - 只让一个系统拥有一个属性。不要让 CSS transition、Motion 和 WAAPI 同时控制同一 `transform`、`clip-path` 或 mask 变量。
@@ -122,6 +152,8 @@ function radiusToCover(w: number, h: number, x: number, y: number) {
 - 不要通过 React/Vue state 每帧重渲染整个子树。使用动画库的 motion value、WAAPI、CSS 注册属性或局部 RAF 写 style。
 - 不要默认写 `will-change: mask-image`。它不保证合成加速，还可能增加内存或绘制开销。仅对实测有效的属性临时使用 `will-change`，完成后移除。
 - 不要同时叠加 shape、百分比、进度环、文字扫光和粒子。保留一个主运动，其余只承担必要反馈。
+- 大量 tile 使用一个全局 timeline/RAF 推导每个 tile 的 local progress；不要为每个 tile 创建独立 timer，也不要逐帧重渲染整棵 UI。
+- 同一距离场可以同时驱动 reveal 与 exit：保持 delay 顺序不变，只反转每个 tile 的局部可见尺度；不要默认把 cell 数组倒序当成语义正确的退出。
 - 对工作型产品保持短促克制；对品牌/媒体场景才使用更长的 hold、软边或复杂形状。hold 必须服务于感知，不得用来掩盖加载不确定性。
 
 ## 内容、交互与无障碍
@@ -144,6 +176,8 @@ function radiusToCover(w: number, h: number, x: number, y: number) {
 
 - 初始帧无闪现，形状内外显示的是定义中的正确内容。
 - 任意支持尺寸和 origin 都完整覆盖，无露角、接缝或一帧底色。
+- 网格/矩阵在完整帧的四角、外边缘和内部交点都无发丝缝，距离波前顺序与定义一致。
+- source-exit 首帧完整保留 source，末帧所有 source 几何归零；fallback 仍保持 source-over-target 语义。
 - target 未就绪时不会被揭开；完成后没有残留 mask、clip、overlay 或默认 View Transition crossfade。
 - 快速重复触发、取消、resize、组件卸载和异常路径都落到确定状态。
 - reduced-motion、键盘焦点、pointer、亮暗主题和浏览器回退均可用。

@@ -31,6 +31,7 @@
 - `clip-path`/mask 实际作用在应该被裁剪的层，不是恰好看起来相似的装饰层。
 - mask 同时提供标准属性和项目目标浏览器需要的 `-webkit-` 属性。
 - alpha/luminance 语义明确；SVG ids 唯一，units 明确。
+- 网格 transition 已区分独立 tile cover、masked target reveal 与 masked source exit，没有为每个 tile 复制整棵交互 DOM。
 - 同一属性只有一个动画 owner。
 - 关键 overlay 不挂在会随路由卸载、带 transform/filter 或错误 overflow 的祖先下。
 - 临时层不会与 dialog/popover 的 top layer 产生错误预期。
@@ -61,6 +62,7 @@ for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
 - View Transition pseudo-element animations 和框架 spring 不一定都能用同一方式固定。必要时使用测试模式的线性 duration/progress，而不是 sleep 猜时刻。
 - Spring 的 nominal duration 不代表每个浏览器上的视觉进度线性。中间帧验收应关注几何覆盖和层关系，不要把 spring 当线性时间轴。
 - 截图前等待两次 RAF，让 style 和 paint 稳定；不要等待一个任意的长 timeout。
+- staggered grid 还要记录每个固定帧的可见/完整 tile 数量：target reveal 应单调增加并在 `100%` 全部完整；source exit 应单调减少并在 `100%` 全部归零。
 
 ## 视觉矩阵
 
@@ -80,7 +82,9 @@ for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
 - origin 是否与触发器或设计锚点对齐。
 - 圆/多边形的内外内容是否正确，没有 source/target 反转。
 - 所有角都覆盖，没有 `1px` 露角、接缝、抗锯齿底色或 overflow 裁切。
+- 网格/矩阵完整帧除四角外，还要检查四边与多个内部 tile 交点；高 DPR 下不能出现发丝缝。
 - 第一帧没有完整 target 闪现，最后一帧 cleanup 没有闪回 source。
+- source-exit 的第一帧必须完整保留 source，最后一帧必须完整显示 target，不能短暂清掉 mask 后闪回 source。
 - 主题背景、品牌色、文字和媒体在中间帧保持正确，不受 blend/filter 污染。
 - 固定 header、sticky 元素、portal、dialog、popover 和滚动条没有突然跨层。
 - viewport resize/orientation change 后不使用旧半径。
@@ -93,6 +97,8 @@ for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
 
 - 快速双击或连续触发两个不同 target。
 - 动画每个阶段分别触发取消、后退、关闭或新导航。
+- cover matrix 分别在完整提交前后取消：提交前必须保留 source，提交后必须保留 target。
+- source-exit 在完成前取消必须恢复 source 并移除下层 target；完成、resize 或 reduced-motion 路径必须提交 target。
 - 在 covering、covered、revealing 阶段 resize/旋转。
 - 动画中卸载组件或让 `commit()` reject。
 - target 数据慢、图片慢、字体首次加载。
@@ -104,6 +110,7 @@ for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
 - 页面最终只停在完整 source 或完整 target，不存在半遮罩永久状态。
 - 交互锁、`inert`、disabled、focus 和滚动策略都恢复。
 - `[data-transition-cover]` 等临时节点数量符合设计，没有每次触发累积。
+- SVG/网格实现没有累积 defs、重复 id、masked target/source、临时 opacity/z-index class 或每 tile timer；旧事务只能清理自身 token 的资源。
 - `document.getAnimations()` 中没有本组件遗留的 running animation。
 - 没有残留 RAF、timer、observer、matchMedia listener 或 Motion subscription。
 
@@ -134,9 +141,11 @@ await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
 
 - 动画期间是否出现长任务、连续大面积 paint、掉帧或纹理内存突增。
 - 大型 `mask-image` 是否比简单 `clip-path`/transform 明显更贵。
+- tile 数量是否有明确上限；大量 DOM transform 与 SVG rect mask 在目标移动设备上的 paint、图层和内存是否可接受。
 - `will-change` 是否真的改变合成行为；无证据则删除。
 - 高 DPR 手机上软边、锯齿和 Canvas 尺寸是否正确。
 - feature detection 失败时是否仍提交 target，并落到简短 fallback。
+- source-exit fallback 是否仍让上层 source 淡出或直接提交，而不是悄悄切换为层级相反的 incoming reveal。
 - 外部 SVG/media 的 CORS 或加载失败是否会把内容完全隐藏。
 
 不要仅用开发环境的热更新页面判断性能；开发构建、React Strict Mode 和调试工具会改变时序。必要时使用项目现有 preview/production build 复核。

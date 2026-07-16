@@ -1,4 +1,4 @@
 interface:
   display_name: "Geometric Mask Transition"
-  short_description: "Build reliable geometric reveal transitions"
-  default_prompt: "Use $geometric-mask-transition to choose the correct layer architecture, implement the reveal, and validate every transition state."
+  short_description: "Build geometric reveals, exits, and matrix transitions"
+  default_prompt: "Use $geometric-mask-transition to choose the correct layer architecture, implement the reveal or source exit, and validate every transition state."
