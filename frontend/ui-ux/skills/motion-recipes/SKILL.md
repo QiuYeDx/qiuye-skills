@@ -9,6 +9,7 @@ description: >-
   "内容过渡动画", "方向感知动画", "spring animation", "motion 最佳实践",
   "motion recipes", "动效案例", "layout 动画遮挡", "popover 高度突变",
   "auto height 动画", "内容高度变化", "popLayout", "height jump",
+  "layoutDependency", "祖先布局变化", "indicator 上下漂移", "选中胶囊错位",
   "shared element", "共享元素过渡", "Header 模式切换", "品牌标题迁移",
   "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消".
 ---
@@ -85,6 +86,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 1 | layoutId 导航切换 + 内容过渡 | [cases/layout-id-nav-switch.md](cases/layout-id-nav-switch.md) | `layoutId`、Nav / Tabs / Segmented Control 活跃态滑动、方向感知内容过渡、indicator 遮挡修复 |
 | 2 | AnimatePresence 内容切换 + Popover 高度平滑过渡 | [cases/animate-presence-auto-height-popover.md](cases/animate-presence-auto-height-popover.md) | `AnimatePresence`、`popLayout`、Popover / Tooltip / Card 内容行数变化、auto-height 高度突变修复 |
 | 3 | 共享元素迁移 + 辅助内容编排切换 | [cases/shared-element-orchestrated-view-switch.md](cases/shared-element-orchestrated-view-switch.md) | `layoutId` shared element、Header / Toolbar 模式切换、卫星内容错峰进退、深色文字与扫光污染修复 |
+| 4 | 用 layoutDependency 隔离无关布局变化 | [cases/layout-dependency-isolate-indicator.md](cases/layout-dependency-isolate-indicator.md) | `layoutDependency`、Segmented Control / Tabs 选中指示器、祖先高度变化、未交互控件上下漂移 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -119,6 +121,14 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「新操作区第一帧闪现，旧操作区最后突然消失」
 - 「共享渐变文字 / 金色扫光过渡时重影或颜色异常」
 - 品牌 Header、响应式 Toolbar、搜索框展开、Mini / Full 模式、卡片到详情标题迁移
+
+### 用 layoutDependency 隔离无关布局变化 → Case 4
+
+- 「切换配置后，下方未操作的 Segmented Control 高亮胶囊会短暂上下漂移」
+- 「页面内容瞬间重排，只有 layoutId indicator 带位移过渡」
+- 「如何避免祖先高度变化触发无关的 layout 动画」
+- 「这个问题应该修组件还是修使用层」
+- Segmented Control、Tabs、Filter Pills、单选按钮组中的共享选中指示器
 
 <!--
 ### [未来 Case 名称] → Case N
