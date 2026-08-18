@@ -2,13 +2,14 @@
 name: motion-recipes
 description: >-
   Motion 动效案例集：提供经过验证的 Motion (framer-motion) 动效实现方案与最佳实践。
-  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、popover auto-height 过渡、手势交互、列表动画等常见场景。
+  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、popover auto-height 过渡、测量式动态高度、手势交互、列表动画等常见场景。
   每个 case 包含完整模板代码、常见坑位修复与验收清单，确保 AI Agent 能稳定复刻高质量动效。
   Triggers on: "motion", "framer-motion", "layoutId", "AnimatePresence",
   "layout animation", "nav 切换动效", "tabs 动画", "活跃态滑动",
   "内容过渡动画", "方向感知动画", "spring animation", "motion 最佳实践",
   "motion recipes", "动效案例", "layout 动画遮挡", "popover 高度突变",
   "auto height 动画", "内容高度变化", "popLayout", "height jump",
+  "dynamic height", "auto to auto", "useMeasure", "ResizeObserver", "动态高度测量",
   "layoutDependency", "祖先布局变化", "indicator 上下漂移", "选中胶囊错位",
   "shared element", "共享元素过渡", "Header 模式切换", "品牌标题迁移",
   "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消".
@@ -87,6 +88,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 2 | AnimatePresence 内容切换 + Popover 高度平滑过渡 | [cases/animate-presence-auto-height-popover.md](cases/animate-presence-auto-height-popover.md) | `AnimatePresence`、`popLayout`、Popover / Tooltip / Card 内容行数变化、auto-height 高度突变修复 |
 | 3 | 共享元素迁移 + 辅助内容编排切换 | [cases/shared-element-orchestrated-view-switch.md](cases/shared-element-orchestrated-view-switch.md) | `layoutId` shared element、Header / Toolbar 模式切换、卫星内容错峰进退、深色文字与扫光污染修复 |
 | 4 | 用 layoutDependency 隔离无关布局变化 | [cases/layout-dependency-isolate-indicator.md](cases/layout-dependency-isolate-indicator.md) | `layoutDependency`、Segmented Control / Tabs 选中指示器、祖先高度变化、未交互控件上下漂移 |
+| 5 | 测量内容高度并平滑动画 auto → auto | [cases/measured-auto-height-content.md](cases/measured-auto-height-content.md) | `useMeasure`、`ResizeObserver`、同一内容树动态增减、异步内容 / 校验信息 / 响应式换行、精确高度裁剪 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -130,6 +132,15 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「这个问题应该修组件还是修使用层」
 - Segmented Control、Tabs、Filter Pills、单选按钮组中的共享选中指示器
 
+### 测量内容高度并平滑动画 `auto -> auto` → Case 5
+
+- 「内容增加后，卡片 / 抽屉高度要平滑长开」
+- 「表单校验信息出现时，不要突然把下面内容顶下去」
+- 「同一个组件内容动态变化，没有 key 切换，怎么动画高度」
+- 「用 useMeasure / ResizeObserver 实现 auto height 动画」
+- 「异步内容、图片加载或响应式换行后高度要平滑更新」
+- 设置卡片、Family Drawer、FAQ、内联错误区、异步预览、筛选摘要
+
 <!--
 ### [未来 Case 名称] → Case N
 - 「...」
@@ -147,6 +158,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
    - 进入动画：`opacity: 0 → 1` + 轻微位移（4–12px）
    - 退出动画：比进入快 20–30%，位移更小
    - 固定高度内容可用 `AnimatePresence mode="wait"` 避免新旧内容重叠
-   - 自动高度内容（popover/card 内容行数变化）优先读 Case 2，使用参与 layout 的容器 + `mode="popLayout"`，避免高度突变
+   - keyed 内容互换导致自动高度变化时读 Case 2，使用参与 layout 的容器 + `mode="popLayout"`
+   - 同一内容树从一个 `auto` 高度变到另一个 `auto` 高度，且普通 `layout` 效果不足时读 Case 5，测量内层并动画外层数值高度
    - 方向感知：根据索引变化计算方向，传入 `custom` prop
 4. 完成后检查：TypeScript 类型、z-index 层级、是否有重复样式冲突。
