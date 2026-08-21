@@ -44,7 +44,8 @@ qiuye-skills/
             ├── animate-presence-auto-height-popover.md
             ├── shared-element-orchestrated-view-switch.md
             ├── layout-dependency-isolate-indicator.md
-            └── measured-auto-height-content.md
+            ├── measured-auto-height-content.md
+            └── list-presence-layout-reorder.md
 ```
 
 ## Skills 一览
@@ -131,7 +132,7 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-
 
 #### `motion-recipes` — Motion 动效案例集
 
-经过验证的 Motion (framer-motion) 动效实现方案与最佳实践，每个 case 包含完整模板代码、常见坑位修复与验收清单。当前包含 5 个 case：
+经过验证的 Motion (framer-motion) 动效实现方案与最佳实践，每个 case 包含完整模板代码、常见坑位修复与验收清单。当前包含 6 个 case：
 
 | Case | 文件 | 覆盖主题 |
 |---|---|---|
@@ -140,8 +141,9 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-
 | 共享元素迁移 + 辅助内容编排 | `cases/shared-element-orchestrated-view-switch.md` | Header 模式切换、卫星内容编排、暗色模式文字伪影 |
 | layoutDependency 隔离无关布局变化 | `cases/layout-dependency-isolate-indicator.md` | 祖先重排时避免未交互 indicator 上下漂移 |
 | 测量式 auto-height | `cases/measured-auto-height-content.md` | useMeasure / ResizeObserver、同一内容树 auto → auto 平滑过渡 |
+| 列表增删、Presence 与位置重排 | `cases/list-presence-layout-reorder.md` | AnimatePresence、popLayout、Flex/Grid 批量增删、退出快照与平滑重排 |
 
-**触发词：** motion、framer-motion、layoutId、AnimatePresence、nav 切换动效、dynamic height、useMeasure、ResizeObserver、spring animation、动效案例
+**触发词：** motion、framer-motion、layoutId、AnimatePresence、nav 切换动效、dynamic height、useMeasure、ResizeObserver、spring animation、列表增删、列表重排、popLayout、退出快照、动效案例
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill motion-recipes
