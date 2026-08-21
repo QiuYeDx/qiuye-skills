@@ -12,7 +12,9 @@ description: >-
   "dynamic height", "auto to auto", "useMeasure", "ResizeObserver", "动态高度测量",
   "layoutDependency", "祖先布局变化", "indicator 上下漂移", "选中胶囊错位",
   "shared element", "共享元素过渡", "Header 模式切换", "品牌标题迁移",
-  "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消".
+  "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消",
+  "列表增删", "列表重排", "popLayout", "退出快照", "批量筛选",
+  "元素分批消失", "首帧跳过".
 ---
 
 # Motion Recipes — 动效案例集
@@ -89,6 +91,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 3 | 共享元素迁移 + 辅助内容编排切换 | [cases/shared-element-orchestrated-view-switch.md](cases/shared-element-orchestrated-view-switch.md) | `layoutId` shared element、Header / Toolbar 模式切换、卫星内容错峰进退、深色文字与扫光污染修复 |
 | 4 | 用 layoutDependency 隔离无关布局变化 | [cases/layout-dependency-isolate-indicator.md](cases/layout-dependency-isolate-indicator.md) | `layoutDependency`、Segmented Control / Tabs 选中指示器、祖先高度变化、未交互控件上下漂移 |
 | 5 | 测量内容高度并平滑动画 auto → auto | [cases/measured-auto-height-content.md](cases/measured-auto-height-content.md) | `useMeasure`、`ResizeObserver`、同一内容树动态增减、异步内容 / 校验信息 / 响应式换行、精确高度裁剪 |
+| 6 | 列表增删、Presence 与位置重排 | [cases/list-presence-layout-reorder.md](cases/list-presence-layout-reorder.md) | `AnimatePresence`、`popLayout`、`layout="position"`、Flex/Grid 批量增删、旧坐标退出快照、首帧 paint、快速切换 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -140,6 +143,16 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「用 useMeasure / ResizeObserver 实现 auto height 动画」
 - 「异步内容、图片加载或响应式换行后高度要平滑更新」
 - 设置卡片、Family Drawer、FAQ、内联错误区、异步预览、筛选摘要
+
+### 列表增删、Presence 与位置重排 → Case 6
+
+- 「筛选后删除的标签要原地淡出，其他标签平滑补位」
+- 「新增项在最终位置淡入，旧项只重排一次」
+- 「Flex / Grid 批量增删时元素分两批消失」
+- 「退出项或新增项的首态没有真正显示」
+- 「layout 和 scale 一起用导致文字换行或边框拉伸」
+- 「快速连续筛选后残留退出副本」
+- 筛选标签、可删除 Chip、任务列表、卡片 Grid、排序列表、搜索结果
 
 <!--
 ### [未来 Case 名称] → Case N
