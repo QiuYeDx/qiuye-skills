@@ -14,7 +14,10 @@ description: >-
   "shared element", "共享元素过渡", "Header 模式切换", "品牌标题迁移",
   "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消",
   "列表增删", "列表重排", "popLayout", "退出快照", "批量筛选",
-  "元素分批消失", "首帧跳过".
+  "元素分批消失", "首帧跳过", "container transform", "容器变形",
+  "卡片展开", "卡片放大", "morphing dialog", "hero animation",
+  "居中浮层", "详情浮层", "遮罩过渡", "筛选面板展开", "按钮展开面板",
+  "FAB 变对话框", "灯箱过渡", "占位克隆", "视觉克隆".
 ---
 
 # Motion Recipes — 动效案例集
@@ -92,6 +95,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 4 | 用 layoutDependency 隔离无关布局变化 | [cases/layout-dependency-isolate-indicator.md](cases/layout-dependency-isolate-indicator.md) | `layoutDependency`、Segmented Control / Tabs 选中指示器、祖先高度变化、未交互控件上下漂移 |
 | 5 | 测量内容高度并平滑动画 auto → auto | [cases/measured-auto-height-content.md](cases/measured-auto-height-content.md) | `useMeasure`、`ResizeObserver`、同一内容树动态增减、异步内容 / 校验信息 / 响应式换行、精确高度裁剪 |
 | 6 | 列表增删、Presence 与位置重排 | [cases/list-presence-layout-reorder.md](cases/list-presence-layout-reorder.md) | `AnimatePresence`、`popLayout`、`layout="position"`、Flex/Grid 批量增删、旧坐标退出快照、首帧 paint、快速切换 |
+| 7 | 容器变形过渡（Container Transform） | [cases/container-transform-morph.md](cases/container-transform-morph.md) | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、相位状态机、遮罩 / 柔影 / 焦点管理 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -153,6 +157,16 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「layout 和 scale 一起用导致文字换行或边框拉伸」
 - 「快速连续筛选后残留退出副本」
 - 筛选标签、可删除 Chip、任务列表、卡片 Grid、排序列表、搜索结果
+
+### 容器变形过渡（Container Transform） → Case 7
+
+- 「点击筛选按钮，让它原地展开成一个筛选面板」
+- 「点击卡片后，卡片放大 / 飞到屏幕中央变成详情浮层，背景加遮罩」
+- 「按钮变成搜索框，要有变形的连续感」
+- 「FAB 点击后变成对话框 / 图片点开变居中灯箱」
+- 「用 layoutId 包整个卡片做展开，过渡中文字拉伸、圆角变形」
+- 「卡片和详情共用标题 / 徽章，过渡时要跟着飞」
+- 筛选面板、搜索框展开、内联编辑、卡片详情浮层、图片灯箱、FAB → Dialog、通知项 → 通知中心
 
 <!--
 ### [未来 Case 名称] → Case N
