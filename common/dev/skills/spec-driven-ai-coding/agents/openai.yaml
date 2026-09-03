@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spec-Driven AI Coding"
+  short_description: "分级 S/M/L 的 Spec 驱动 AI 开发工作流（BRD → 模块 Spec → 任务 → 验证 → 变更）"
+  default_prompt: "Use $spec-driven-ai-coding to triage this requirement (S/M/L), then plan or implement it with the matching workflow, checkpoints, and quality gates."

@@ -15,8 +15,27 @@
 ```text
 qiuye-skills/
 ├── common/dev/skills/
-│   ├── large-feature-ai-coding/
-│   │   └── SKILL.md
+│   ├── spec-driven-ai-coding/
+│   │   ├── SKILL.md
+│   │   ├── agents/openai.yaml
+│   │   ├── references/
+│   │   │   ├── quality-gates.md
+│   │   │   ├── frontend-quality.md
+│   │   │   ├── backend-quality.md
+│   │   │   └── planning-guide.md
+│   │   ├── templates/
+│   │   │   ├── discovery.md
+│   │   │   ├── brd.md
+│   │   │   ├── requirements.md
+│   │   │   ├── design.md
+│   │   │   ├── tasks.md
+│   │   │   ├── task-list-overall.md
+│   │   │   ├── record.md
+│   │   │   ├── change.md
+│   │   │   └── manual-test-checklist.md
+│   │   └── scripts/
+│   │       ├── init_spec.py
+│   │       └── check_spec.py
 │   └── project-pitfall-guard/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
@@ -53,14 +72,18 @@ qiuye-skills/
 
 ### common/dev — 通用开发工作流
 
-#### `large-feature-ai-coding` — 中大型需求 AI Coding 协作工作流
+#### `spec-driven-ai-coding` — 分级 Spec 驱动的 AI Coding 工作流
 
-中大型需求的 AI Agent Coding 协作工作流，涵盖开发设计文档、执行计划、多会话实施记录与进度台账。适用于跨前后端的中大型功能开发。
+按需求规模 S / M / L 选择流程与文档量：S 直接开发并自检；M 产出单模块 `requirements / design / tasks`；L 走项目级 Spec 模式：需求梳理 → BRD（唯一需求基底）→ 模块拆分（`module-common` + `module-xxx`）→ 各模块三件套 → `task-list-overall` → 一 Agent 一模块并行开发 → 单项 / 结合 / 人工测试 → 变更先改 BRD 再回流。
 
-**触发词：** 中大型需求、跨前后端、开发设计文档、执行计划、多会话开发、工作包、进度台账
+针对 AI 做大需求时常见的「遗漏需求点、前端粗糙、功能肤浅不可用、逻辑不自洽、后端质量差、放飞自我」，内置：`BR → R → T` 需求编号追踪、前端 / 后端设计阶段产出要求与质量门、浏览器自检与接口验证流程、完成定义（DoD）、检查点（CP1/CP2/CP3）必停、一 Agent 一模块一任务的范围栅栏、状态诚实规则。附 9 套文档模板与两个脚本：`init_spec.py` 生成骨架，`check_spec.py` 检查需求覆盖、状态合法性与 overall/tasks 一致性。
+
+替代原 `large-feature-ai-coding`；存量项目中旧格式（`*_final_design.md` / `*_execution_plan.md`）可继续沿用。
+
+**触发词：** spec 模式、BRD、需求梳理、需求文档、开发设计、任务拆分、模块拆分、module-common、中小型需求、中大型需求、项目级开发、多 Agent 并行、多会话开发、实施记录、变更管理、新需求/修改点、验收测试、AI Agent Coding
 
 ```bash
-npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill large-feature-ai-coding
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill spec-driven-ai-coding
 ```
 
 ---
