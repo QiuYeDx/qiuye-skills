@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "feature": "import-preview",
+  "tier": "L",
+  "risk": "medium",
+  "current_increment": "I1",
+  "modules": [
+    {
+      "slug": "ingest",
+      "code": "INGEST",
+      "path": "modules/module-ingest"
+    },
+    {
+      "slug": "preview",
+      "code": "PREVIEW",
+      "path": "modules/module-preview"
+    }
+  ],
+  "increments": [
+    {
+      "id": "I1",
+      "title": "首个可验收增量",
+      "status": "planning",
+      "approval": {
+        "state": "pending",
+        "by": "",
+        "basis": "",
+        "digest": ""
+      },
+      "acceptance": {
+        "state": "pending",
+        "by": "",
+        "basis": "",
+        "digest": "",
+        "record": ""
+      }
+    },
+    {
+      "id": "I2",
+      "title": "异步导出（未来增量）",
+      "status": "planning",
+      "approval": {
+        "state": "pending",
+        "by": "",
+        "basis": "",
+        "digest": ""
+      },
+      "acceptance": {
+        "state": "pending",
+        "by": "",
+        "basis": "",
+        "digest": "",
+        "record": ""
+      }
+    }
+  ],
+  "decisions": [],
+  "parallel": {
+    "enabled": false,
+    "integrator": "",
+    "shared_files": []
+  }
+}

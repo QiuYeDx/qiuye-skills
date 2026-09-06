@@ -1,0 +1,19 @@
+{
+  "command": "python scripts/check_spec.py examples/l-rolling/spec --stage ready --check-overall --json",
+  "expected_exit": 0,
+  "actual_exit": 0,
+  "output": {
+    "version": "2.0.0",
+    "stage": "ready",
+    "errors": [],
+    "warnings": [],
+    "scope_digest": "40c76620d541fa1093f09cd77c70f403c9e380b6a18e2d2beee5d01bdae2c213",
+    "increment_digest": "38f07c60aabb3b7e6556cbba5a17344ecc162465edd91d0aa004e9851d84ebdd",
+    "task_digests": {
+      "T-INGEST-01": "bf79a162c87d41c3a271053e901992969b3e4b34935716ce9cabe5e972d6578d",
+      "T-PREVIEW-01": "521cca0059ff1a0e41d8f4b9c4ee07c6f3e32276df8c65f4894dff475ab2a57f"
+    },
+    "meaning": "仅结构、引用与声明完整性检查；不证明批准真实、代码正确或测试实际执行。"
+  },
+  "stderr": ""
+}

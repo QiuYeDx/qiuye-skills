@@ -17,25 +17,37 @@ qiuye-skills/
 ├── common/dev/skills/
 │   ├── spec-driven-ai-coding/
 │   │   ├── SKILL.md
+│   │   ├── README.md / VERSION / CHANGELOG.md
 │   │   ├── agents/openai.yaml
 │   │   ├── references/
 │   │   │   ├── quality-gates.md
 │   │   │   ├── frontend-quality.md
 │   │   │   ├── backend-quality.md
-│   │   │   └── planning-guide.md
+│   │   │   ├── planning-guide.md
+│   │   │   ├── workflow.md
+│   │   │   ├── collaboration.md
+│   │   │   ├── document-format.md
+│   │   │   └── migration.md
 │   │   ├── templates/
 │   │   │   ├── discovery.md
 │   │   │   ├── brd.md
 │   │   │   ├── requirements.md
 │   │   │   ├── design.md
 │   │   │   ├── tasks.md
-│   │   │   ├── task-list-overall.md
+│   │   │   ├── handoff.md
+│   │   │   ├── spike.md
 │   │   │   ├── record.md
 │   │   │   ├── change.md
 │   │   │   └── manual-test-checklist.md
-│   │   └── scripts/
-│   │       ├── init_spec.py
-│   │       └── check_spec.py
+│   │   ├── scripts/
+│   │   │   ├── init_spec.py
+│   │   │   ├── check_spec.py
+│   │   │   ├── render_overall.py
+│   │   │   └── spec_core.py
+│   │   ├── tests/
+│   │   ├── examples/
+│   │   ├── evals/
+│   │   └── validation/
 │   └── project-pitfall-guard/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
@@ -72,15 +84,15 @@ qiuye-skills/
 
 ### common/dev — 通用开发工作流
 
-#### `spec-driven-ai-coding` — 分级 Spec 驱动的 AI Coding 工作流
+#### `spec-driven-ai-coding` — 分级 Spec 驱动的 AI Coding 工作流（v2.0.0）
 
-按需求规模 S / M / L 选择流程与文档量：S 直接开发并自检；M 产出单模块 `requirements / design / tasks`；L 走项目级 Spec 模式：需求梳理 → BRD（唯一需求基底）→ 模块拆分（`module-common` + `module-xxx`）→ 各模块三件套 → `task-list-overall` → 一 Agent 一模块并行开发 → 单项 / 结合 / 人工测试 → 变更先改 BRD 再回流。
+按规模、风险和不确定性选择流程：S 轻量开发与验证；M 使用 `requirements / design / tasks` 与 `spec.json` 批次元数据；L 采用滚动规划，仅细化当前可交付增量。`common` 和多 Agent 并行按需采用，协作边界按实际写集协调。区分 bugfix 与需求变更，沿用明确授权自主执行。
 
-针对 AI 做大需求时常见的「遗漏需求点、前端粗糙、功能肤浅不可用、逻辑不自洽、后端质量差、放飞自我」，内置：`BR → R → T` 需求编号追踪、前端 / 后端设计阶段产出要求与质量门、浏览器自检与接口验证流程、完成定义（DoD）、检查点（CP1/CP2/CP3）必停、一 Agent 一模块一任务的范围栅栏、状态诚实规则。附 9 套文档模板与两个脚本：`init_spec.py` 生成骨架，`check_spec.py` 检查需求覆盖、状态合法性与 overall/tasks 一致性。
+内置需求与验收追踪、前端 / 后端质量门、真实验证证据和可恢复交接。任务状态以 `tasks.md` 为单一来源，总览自动生成。附 10 套模板、测试与示例；`init_spec.py` 创建全新骨架，`check_spec.py` 按 draft / ready / done 检查结构、覆盖、批准及证据是否过期，`render_overall.py` 生成只读总览，`spec_core.py` 提供共用校验逻辑。脚本需要 Python 3.10+，不执行文档中的测试命令，也不能证明业务正确性。
 
-替代原 `large-feature-ai-coding`；存量项目中旧格式（`*_final_design.md` / `*_execution_plan.md`）可继续沿用。
+替代原 `large-feature-ai-coding`；存量 v1 文档和旧格式（`*_final_design.md` / `*_execution_plan.md`）可继续沿用。v2 检查器仅支持含 `spec.json` 的新版格式，需要迁移时参见 [迁移说明](common/dev/skills/spec-driven-ai-coding/references/migration.md)。
 
-**触发词：** spec 模式、BRD、需求梳理、需求文档、开发设计、任务拆分、模块拆分、module-common、中小型需求、中大型需求、项目级开发、多 Agent 并行、多会话开发、实施记录、变更管理、新需求/修改点、验收测试、AI Agent Coding
+**适用请求：** 明确的 Spec 规划、实施、验证、需求与设计文档、可追踪任务规划、多会话交接、多 Agent 协作，或继续本 Skill 已管理的任务；不会仅因出现 feat / fix / bug / coding 而触发。
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill spec-driven-ai-coding

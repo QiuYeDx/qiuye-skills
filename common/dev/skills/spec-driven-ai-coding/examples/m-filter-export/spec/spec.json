@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "feature": "filter-export",
+  "tier": "M",
+  "risk": "low",
+  "current_increment": "I1",
+  "modules": [
+    {
+      "slug": "filter-export",
+      "code": "EXPORT",
+      "path": "."
+    }
+  ],
+  "increments": [
+    {
+      "id": "I1",
+      "title": "首个可验收增量",
+      "status": "verifying",
+      "approval": {
+        "state": "approved",
+        "by": "示例包构建者",
+        "basis": "仅批准本包 examples/m-filter-export 中的隔离演示代码与合成测试；不表示用户业务项目获准实施。",
+        "digest": "6bc51eaa0d7c530336b8abed044ae1949b98e2dbd75979200212d3ea3e47777f"
+      },
+      "acceptance": {
+        "state": "pending",
+        "by": "",
+        "basis": "",
+        "digest": "",
+        "record": ""
+      }
+    }
+  ],
+  "decisions": [],
+  "parallel": {
+    "enabled": false,
+    "integrator": "",
+    "shared_files": []
+  }
+}

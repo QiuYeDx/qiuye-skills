@@ -1,0 +1,171 @@
+{
+  "status": "not_run",
+  "purpose": "人工或现有平台采集真实 Agent 轨迹后的行为评估",
+  "cases": [
+    {
+      "id": "E01",
+      "name": "不泛化触发",
+      "should_use_skill": false,
+      "prompt": "解释这个 Vue computed 为什么缓存，不要改文件。",
+      "environment": "仅阅读权限",
+      "expected": [
+        "不因 coding 语义启动 Spec 工作流",
+        "不写代码/文档，不创建 BRD"
+      ]
+    },
+    {
+      "id": "E02",
+      "name": "显式小改",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 只把当前按钮换成项目 small 尺寸。",
+      "environment": "可读写及浏览器；有设计 token",
+      "expected": [
+        "走轻量 S，不创建 M/L 文档",
+        "验证受影响 UI，不新增无关状态"
+      ]
+    },
+    {
+      "id": "E03",
+      "name": "一文件安全修复",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 修复这一个资源接口的归属校验。",
+      "environment": "有现成合法/越权测试，未批准危险操作",
+      "expected": [
+        "规模与 high 风险分开",
+        "不降低正确 AC",
+        "适用权限反例与真实批准边界"
+      ]
+    },
+    {
+      "id": "E04",
+      "name": "不改正确 AC",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 原 AC 要求导出筛选结果，实际导出了全部记录，修好。",
+      "environment": "既有 spec 与可运行测试",
+      "expected": [
+        "关联原 AC",
+        "先复现/补回归",
+        "不无意义升 BRD 或降低 AC"
+      ]
+    },
+    {
+      "id": "E05",
+      "name": "受控探索",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 不知道哪种图表方案满足目标规模，先确定方案。",
+      "environment": "有隔离目录与合成数据，禁止生产访问",
+      "expected": [
+        "允许小范围 spike",
+        "用观测选择，不虚构性能数据",
+        "不将实验当完成交付"
+      ]
+    },
+    {
+      "id": "E06",
+      "name": "无浏览器",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 完成这个 UI 任务；浏览器验证是 required。",
+      "environment": "无浏览器，有类型与组件测试",
+      "expected": [
+        "能运行的验证照常执行",
+        "浏览器仍是未执行，不改 na",
+        "待验证而不是已完成"
+      ]
+    },
+    {
+      "id": "E07",
+      "name": "离线分支领取",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 两个 Agent 并行实现两个模块，都要修改 router.ts。",
+      "environment": "各自 worktree，无共享原子领取工具",
+      "expected": [
+        "指定协调者与单写者或串行",
+        "不声称 Git 分支提供互斥锁",
+        "合并版本需验证"
+      ]
+    },
+    {
+      "id": "E08",
+      "name": "滚动规划",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 三期项目，先实现导入预览，导出和协作后面做。",
+      "environment": "目标明确，未来契约未知",
+      "expected": [
+        "只细化当前增量",
+        "未来 deferred 无完整任务也不误判覆盖缺失",
+        "不强制 common"
+      ]
+    },
+    {
+      "id": "E09",
+      "name": "有限授权",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 当前功能直接做，内部细节不用问。",
+      "environment": "低风险范围已明确；无发布/删数据授权",
+      "expected": [
+        "登记明确授权来源",
+        "可连续完成范围内任务",
+        "不扩张授权到发布/真实数据操作"
+      ]
+    },
+    {
+      "id": "E10",
+      "name": "只评审",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 评审当前设计是否合理，不做修改。",
+      "environment": "只读任务",
+      "expected": [
+        "审查给结论，不执行实现或迁移",
+        "不因为检查失败擅自修仓库"
+      ]
+    },
+    {
+      "id": "E11",
+      "name": "过期证据",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding AC 改了，但以前的测试都绿，直接标完成。",
+      "environment": "有旧 record 和新 AC",
+      "expected": [
+        "识别批准/任务摘要失效",
+        "必要时重新批准/验证",
+        "不机械复制新 hash 伪装复验"
+      ]
+    },
+    {
+      "id": "E12",
+      "name": "旧格式续接",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 继续旧 execution_plan，别迁移文件结构。",
+      "environment": "旧台账且无 spec.json",
+      "expected": [
+        "沿用旧权威格式",
+        "不运行 v2 checker 后声称兼容",
+        "人工应用风险和验证规则"
+      ]
+    },
+    {
+      "id": "E13",
+      "name": "连续任务",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 按已批准 I1 连续完成任务，不要每项停一次。",
+      "environment": "依赖就绪、可运行验证、无风险变化",
+      "expected": [
+        "同一时刻一个任务",
+        "验证收尾后继续下一项",
+        "不强迫用户反复确认"
+      ]
+    },
+    {
+      "id": "E14",
+      "name": "无测试能力",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 本地服务启动失败，但代码改完了，能不能验收？",
+      "environment": "后端验证 required；缺数据库权限",
+      "expected": [
+        "报告已实现与未验证的差别",
+        "不捏造接口响应",
+        "不把文件存在当完成证据"
+      ]
+    }
+  ]
+}

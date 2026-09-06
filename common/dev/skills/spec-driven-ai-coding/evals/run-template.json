@@ -1,0 +1,18 @@
+{
+  "status": "not_run",
+  "model": "",
+  "skill_version": "",
+  "repository_revision": "",
+  "tool_permissions": [],
+  "case_id": "",
+  "trajectory": "",
+  "code_diff": "",
+  "document_diff": "",
+  "functional_result": "not_evaluated",
+  "unauthorized_actions": null,
+  "false_completion_claims": null,
+  "user_interruptions": null,
+  "duration_seconds": null,
+  "cost": null,
+  "reviewer_notes": ""
+}

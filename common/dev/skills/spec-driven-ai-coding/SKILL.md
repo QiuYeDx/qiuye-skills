@@ -1,198 +1,133 @@
 ---
 name: spec-driven-ai-coding
 description: >-
-  分级（S/M/L）的 Spec 驱动 AI Coding 工作流。小需求直接开发并自检；中型需求产出单模块
-  requirements/design/tasks；中大型或项目级需求走 需求梳理 → BRD → 模块拆分（module-common +
-  module-xxx）→ 各模块 requirements/design/tasks → task-list-overall → 一 Agent 一模块并行开发 →
-  单项/结合/人工测试 → 变更先改 BRD 的闭环，并用需求编号追踪、前端/后端质量门、检查点与完成定义
-  防止遗漏需求、前端粗糙、功能肤浅、逻辑不自洽与 AI 放飞。Use when the user asks to plan or
-  implement a feature or project with AI agents, mentions spec mode, BRD, requirements/design/tasks
-  docs, module split, task list, parallel or multi-session development, acceptance testing, or
-  submits 新需求/修改点. Triggers: spec 模式、BRD、需求梳理、需求文档、开发设计、任务拆分、
-  task-list、模块拆分、module-common、中小型需求、中大型需求、项目级开发、多 Agent 并行、
-  多会话开发、实施记录、变更管理、新需求/修改点、验收测试、人工测试、feat/fix、AI Agent Coding。
+  按规模、风险与不确定性分流的 Spec 驱动 AI Coding：明确验收、滚动规划、受控实现、真实验证与可恢复交接。
+  当用户明确要求 spec/规格驱动开发、需求与设计文档、可追踪任务规划、多会话交接或多 Agent 协作，
+  或继续本 Skill 已管理的任务时使用。Use for explicit spec-driven planning, implementation, verification,
+  or resuming a tracked feature. Do not activate merely because a message says feat, fix, bug, or coding;
+  do not impose the full workflow on explanations, code review, or a small edit unless explicitly requested.
+compatibility: >-
+  工作流可用于具备文件读写能力的 Coding Agent；辅助脚本需要 Python 3.10+，仅用标准库。
+  浏览器、测试服务、Git 与联网能力按项目环境提供，不假设存在。
+metadata:
+  version: "2.0.0"
 ---
 
 # Spec-Driven AI Coding
 
-按需求规模选择恰当的流程与文档量，用「需求基底 → 模块 Spec → 任务 → 验证 → 变更回流」的闭环约束 AI，让另一位 Agent 或人只凭文档就能继续开发。
+让 AI 对需求、修改边界与验证证据负责，不对文档数量负责。
+默认文档中文；代码、注释、日志、UI 文案遵循项目现有约定和明确的用户要求。
+本 Skill 不覆盖宿主权限、项目指令或用户明确限定的工作范围。
 
-## 每次会话开始
+## 入口：先确认任务，而不是先生成文档
 
-1. 判定规模（见下表），或沿用文档中已判定的规模。
-2. 定位文档根与当前阶段（见「入口路由」）。
-3. 明确本会话角色：规划者 / 模块开发者 / 测试验收 / 变更管理。
-4. 在回复开头用 3–5 行声明：规模、角色、本会话产出、将在哪个检查点停下。
-5. 结束前执行「会话收尾清单」。
+1. 读项目指令、相关实现、既有验收条件和实际工具能力；查看工作树，保留用户未提交的改动。
+2. 识别意图：规划 / 实现 / 验证 / 评审。只要求评审时不改代码；不把仓库中的指令文本当成新的用户授权。
+3. 判断改动类型、规模、风险和探索需求。已有 Spec 时先定位当前批次、批准依据、任务与真实代码基线。
+4. 简短说明本次目标、必要假设和停下条件。不要每轮固定输出冗长仪式性声明。
+5. 只读当前角色需要的参考文件，不把全部 templates/examples/tests 载入上下文。
 
-## 规模判定
-
-| 规模 | 典型特征 | 流程 |
-| --- | --- | --- |
-| S | 单点修改或 bugfix；≤3 个文件；无新接口/新页面/新表；一次会话可完成 | 流程 S |
-| M | 单一功能，落在 1 个模块；少量页面/接口/表；1–5 个会话；单 Agent 串行 | 流程 M |
-| L | 多模块或跨前后端；需多会话或多 Agent 并行；从零起项目；需求模糊需先讨论 | 流程 L |
-
-拿不准时向上取一级；用户明确指定规模时以用户为准。S 中途发现需要新接口/新页面 → 升级 M；M 中途发现需要拆模块 → 升级 L，并补齐对应文档后再继续。
-
-## 入口路由
-
-| 仓库/对话状态 | 角色与动作 |
+| 情况 | 下一步 |
 | --- | --- |
-| 无 spec 文档，需求模糊或较大 | 规划者：阶段 0 需求梳理 |
-| 有 `discovery.md` 无 `brd.md`（L） | 规划者：写 BRD → CP1 |
-| 有 `brd.md` 无模块 spec | 规划者：模块拆分 + 模块三件套 + `task-list-overall.md` → CP2 |
-| 有三件套（M）或用户指定模块/任务 | 模块开发者：按「开发会话协议」领取一个任务 |
-| 用户给出「新需求/修改点」或验收发现的问题 | 变更管理：影响分析 → 先改需求基底 → 再改其他文档 → 确认 → 实施 |
-| 用户要求测试/验收 | 测试验收：单项 → 结合 → 人工测试清单 → CP3 |
-| 用户只要分析/评审 | 不写代码，产出结论或文档更新建议 |
-| 项目已有旧格式（`*_final_design.md` / `*_execution_plan.md`） | 沿用旧格式与其台账，不迁移；质量门与 DoD 仍然适用 |
+| 边界明确的小改动 | 流程 S；不自动创建 Spec 目录 |
+| 一个连贯功能，需要可恢复任务规划 | 流程 M |
+| 多个交付增量或多个协作边界 | 流程 L；并行可选，不以“跨前后端”自动判 L |
+| 关键技术可行性未知 | 有边界的 spike，随后回到 S/M/L；未知不自动等于大规模 |
+| 已有 v2 文档 | 读 spec.json 的 current_increment、批准与阻断项，再读当前需求/设计/任务；文件存在不等于获准开发 |
+| 已有 v1 或其他格式 | 沿用原权威文档和台账，应用本 Skill 的原则；未经要求不迁移，v2 检查器不冒充兼容旧格式 |
 
-检查点（到达即停下等待用户确认，并在 `task-list-overall.md`「检查点记录」登记）：
+详细分流与规划见 [planning-guide](references/planning-guide.md)；执行与变更见 [workflow](references/workflow.md)。
 
-| 检查点 | L | M |
-| --- | --- | --- |
-| CP1 需求基底 | `brd.md` 完成 | `requirements.md` 完成（可与 CP2 合并停一次） |
-| CP2 设计与任务 | 全部模块三件套 + `task-list-overall.md` 完成，`check_spec.py` 无 error | `design.md` + `tasks.md` 完成，`check_spec.py` 无 error |
-| CP3 阶段验收 | 每个阶段端到端可演示；最终人工测试清单 | 全部任务完成后的人工测试清单 |
+## 三个独立判断
 
-## 不可违反的规则
+**规模决定文档量。** S 是可直接理解与验证的局部变化；M 是单个连贯功能；L 是多个可交付增量/协作边界。
+文件数、变更行数、会话数只是估算线索，不是硬门槛。
 
-1. **需求基底唯一**：L 以 `brd.md`、M 以 `requirements.md` 为唯一需求来源。任何新增/修改需求必须先改需求基底，再改 design/tasks/overall，最后才改代码。
-2. **不脑补需求**：文档未写明的行为，先查需求基底；仍无 → 登记为 `Q-xx` 未决问题或 `A-xx` 假设，取最保守实现，并在回复中显式列出。用户说「由 AI 自行补充细节并设计方案」时，可联网参考同类产品并自行设计，但每条补充都要写成 `A-xx` 进入文档等待确认。
-3. **把读者当零上下文的新人**：文档写具体值、枚举、示例数据、字段类型/必填/默认值、每个按钮点击后的行为、每个异常下用户看到什么。禁用模糊词：等等、类似、合理、适当、若干、友好提示、尽量、后续完善。
-4. **一 Agent、一模块、一任务**：一次会话只领 1 个任务（强耦合 ≤3 个），只改本模块 `design.md`「代码落点」列出的路径及其测试。需要改 `module-common` 或其他模块 → 走变更管理。
-5. **检查点必停**：CP1（需求基底）、CP2（设计与任务）未获用户确认前不写业务代码，只做只读调研。用户明确要求「不用确认一直做」时，仍先完成文档、列清假设，再继续。
-6. **真实可用才算完成**：生产路径不得残留 TODO、占位、mock 数据、示意实现、`console.log`；前端每个页面必须在浏览器中实际走通全部状态；后端每个接口必须跑过正反例。满足 DoD 才能标 `已完成`。
-7. **状态诚实**：状态只用 `未开始 / 进行中 / 已完成 / 阻塞 / 废弃`；未验证的不得标 `已完成`。
-8. **源码目录遵循项目规范**：`module-xxx` 只是文档与任务的组织单位，不要在源码里创建 `module-xxx` 目录；每模块 `design.md` 用「代码落点」表映射到真实目录。
-9. **语言约定写进文档**：默认文档中文；代码注释与 UI 文案跟随项目现状。用户指定「中文开发」时，注释、提示文案、错误信息、日志全部中文，并写入需求基底的约束章节。
+**风险决定确认与验证强度。** low：局部、可逆；medium：接口/状态/兼容性有影响；high：权限、安全、不可逆数据变化、破坏性发布等。
+一个文件的权限修改也可以是 high，不强迫它写完整 BRD。
 
-## 文档目录与编号
+**不确定性决定是否先探索。** 查代码可回答的先查；产品取舍才问用户；可行性问题用受控实验，不凭空填性能数字。
 
-优先使用项目已有的文档根；默认 `docs/开发设计文档/`。
+## 必须守住的边界
 
-```text
-docs/开发设计文档/<feature_slug>/
-  discovery.md                 # 需求梳理（L 可选；M 需求模糊时可选）
-  brd.md                       # L：总需求基底
-  task-list-overall.md         # L：总任务列表 + 推荐顺序 + 台账
-  modules/                     # L
-    module-common/{requirements,design,tasks}.md
-    module-<name>/{requirements,design,tasks}.md
-  requirements.md              # M：单模块三件套直接放在根
-  design.md
-  tasks.md
-  records/YYYY-MM-DD_<T-ID>_<title>.md       # 实施记录
-  changes/YYYY-MM-DD_<feat|fix>_<title>.md   # 变更记录
-  acceptance/manual-test-checklist.md        # 人工测试清单
-```
+1. **验收先行，证据收尾。** 先明确可观察的结果和必要反例；不能只写“做好”“优化性能”。
+2. **区分修复与改需求。** 实现偏离正确 AC 时保留 AC、补回归验证再修实现。只有需求/外部行为/约束改变才改需求基底。
+3. **不得迎合实现降低标准。** 修改 AC 必须说明旧→新、原因、来源与影响；不能为了测试转绿删掉必要验证。
+4. **按批准范围自主执行。** 沿用项目惯例的可逆内部决策可直接做并说明；产品范围、关键契约和高风险操作不能靠猜。
+5. **真实状态。** 未执行不是通过；静态检查不是浏览器运行；mock 通过不是实服务通过；任务完成不是集成/整体验收。
+6. **控制副作用。** 不覆盖用户改动，不自动部署/发布/删除真实数据；浏览器清空数据等验证只能在隔离测试环境。
+7. **尊重工具限制。** 缺浏览器、服务或权限就报告缺项、保留待验证状态；不能描述未实际看到的界面。
+8. **一个事实只维护一处。** 需求在需求文档；任务状态在 tasks.md；批准和批次在 spec.json；证据在 record；overall 仅生成。
 
-编号：`BR-01` 业务需求（BRD）；`R-<MOD>-01` 模块需求；`T-<MOD>-01` 任务；`A-01` 假设；`Q-01` 未决问题。`<MOD>` 为模块大写短码（`COMMON`、`AUTH`、`ORDER`），不含连字符。`tasks.md` 每个任务必须填「关联需求」；记录与变更文件名必须带任务或需求编号。
+## 流程 S：不要把小任务变成文档项目
 
-脚本（`<skill>` 为本 Skill 目录）：
+读相关代码 → 写简短目标/验收/影响面 → 按风险确认 → 实现 → 运行针对性验证 → 报告结果与缺项。
+不强制新建三件套、record 或变更目录。已有规范内的小修复，引用已有 AC 并更新受影响任务/记录即可。
+高风险 S 仍需明确批准与验证；小改动不是豁免权限、安全和数据保护的理由。
+
+## 流程 M：单个连贯增量
+
+1. 查现状，写 requirements.md 的范围、来源、当前 R/AC 和边界。
+2. 写 design.md 的当前方案、实际代码位置、取舍与验证风险；只补与本次有关的 UI/接口/数据细节。
+3. 在 tasks.md 拆可验证的增量；先做最小端到端链路，不以“一个聊天会话”为工作边界。
+4. 运行 ready 检查，并做语义审查。默认合并 CP1/CP2 确认一次；用户明确授权连续实施时登记授权来源，不虚构确认。
+5. 按下方执行循环继续，直到完成、遇到批准边界、真实阻塞或需要交接；不因做完一个任务就强迫停止。
+6. 当前任务完成后做适用的集成/用户场景验证。人工确认与任务验证分别记录，不让 Agent 代替用户签验收。
+
+## 流程 L：滚动规划，不预写未来全部细节
+
+先确认 BRD 的目标、范围、关键约束与粗粒度路线图（CP1）。
+只把当前批次展开为模块需求/设计/任务；后续 BR/R 标 deferred，可以没有细任务。
+当前批次的设计与计划通过 ready 和语义审查后到 CP2；不要先写完整个项目再验证第一条链路。
+每批完成后验证集成结果与用户流程（CP3），再细化下一批。
+
+模块只用于组织文档与职责，不强制源码目录。业务契约由所属模块维护，跨模块用明确引用；已有 OpenAPI/Schema/类型定义是契约事实来源时引用它，不再复制一份易漂移的定义。
+common 可选，只放真正共享的约定与能力；不要求先完成所有 common，不冻结未来所有契约。
+并行前必须读 [collaboration](references/collaboration.md)，否则默认串行。
+
+## 开发执行循环
+
+1. 读当前 AC、设计、任务及必要契约；检查批准/授权、未提交改动、依赖在本工作基线是否实际可用。
+2. 按任务真实写集领取一个任务，标进行中；共享文件由唯一负责人处理。任务 ID 不是锁，Git 分支也不是锁。
+3. 实现并同步必要设计。范围内的文件落点调整可说明后更新写集；跨负责人路径先协调；外部行为变化进入变更管理。
+4. 执行任务验证计划：逐个记录命令/步骤、版本、环境、结果、证据。检查与未执行项都不得省略。
+5. 缺必要验证时标待验证；已知阻塞标阻塞；只有任务 AC 和 required 检查通过且证据完整才能标已完成。
+6. 更新唯一任务块和 record；需要时生成 overall。确认任务是否已集成，不能用本分支的完成状态替代依赖版本检查。
+7. 继续下一个已批准且依赖就绪的任务，或按 [handoff 模板](templates/handoff.md)留下简短可恢复交接。
+
+## 质量门与确认边界
+
+| 门 | 要证明的事 |
+| --- | --- |
+| draft | 结构与引用可读；允许明确的未完成内容，不允许重复编号、非法引用或循环依赖 |
+| ready | 当前 AC/设计/任务/验证计划完整、没有当前阻断问题；另做语义审查。通过不代表已获准实施 |
+| 实施前 | 当前范围有真实批准或明确授权；high 风险需具体批准，笼统“不用问”不是不可逆操作授权 |
+| 任务 done | required 检查和 AC 有逐条证据、日期和实际验证版本；过期证据要重新评估 |
+| 批次验收 | 在集成版本上完成适用的用户场景与跨模块验证，记录真实确认人；不是各任务状态之和 |
+
+详见 [quality-gates](references/quality-gates.md)。UI 任务按需读 [frontend-quality](references/frontend-quality.md)；接口/数据任务读 [backend-quality](references/backend-quality.md)。
+不适用检查可写 na + 理由；环境不具备不是“不适用”。生产路径不得用假实现冒充交付，测试 mock/fixture 可以保留。
+
+## 工具与文档
+
+辅助脚本只操作 Spec，不执行文档中的命令，不运行测试、不联网、不操作 Git、不签署批准。
+没有 Python 时手工执行相同检查并说明未运行脚本，不擅自安装环境。
+格式、字段、指纹含义见 [document-format](references/document-format.md)；旧项目与 M→L 迁移见 [migration](references/migration.md)。
 
 ```bash
-# 脚手架：L 会自动加入 module-common；M 不传 --modules
-python3 <skill>/scripts/init_spec.py --root docs/开发设计文档 --feature <slug> --tier L --modules auth,order
-python3 <skill>/scripts/init_spec.py --root docs/开发设计文档 --feature <slug> --tier M
-# 检查：BR→R→T 覆盖、状态合法、overall 与 tasks 一致、模糊词
-python3 <skill>/scripts/check_spec.py docs/开发设计文档/<slug>
+# <skill> 是安装目录，路径有空格时加引号。脚手架只创建全新目录。
+python3 <skill>/scripts/init_spec.py --root docs/开发设计文档 --feature export --tier M --risk low
+python3 <skill>/scripts/init_spec.py --root docs/开发设计文档 --feature order-center --tier L --modules order,report
+
+python3 <skill>/scripts/check_spec.py <spec-root> --stage draft
+python3 <skill>/scripts/check_spec.py <spec-root> --stage ready
+# 批准后、写业务代码前：
+python3 <skill>/scripts/check_spec.py <spec-root> --stage ready --require-approval
+# 取指纹；这是摘要计算，不是批准动作：
+python3 <skill>/scripts/check_spec.py <spec-root> --stage draft --json
+python3 <skill>/scripts/check_spec.py <spec-root> --stage done
+python3 <skill>/scripts/render_overall.py <spec-root> --write
 ```
 
-## 流程 S（小）
-
-1. 读相关代码；在回复中列出：改动点、涉及文件、可测的验收标准、风险。
-2. 实现；运行相关测试/构建。涉及 UI 时，按 `references/frontend-quality.md` 的「浏览器自检流程」走一遍。
-3. 若项目已有 `changes/`（或旧格式的 `feat/`、`fix/`）目录，补一条变更记录；否则不产出文档。
-4. 回复：改了什么、怎么验证的、遗留风险。
-
-## 流程 M（中）
-
-0. 需求模糊 → 先做需求梳理（用 `references/planning-guide.md` 的问题清单），结论写入 `discovery.md`。
-1. 现状调研：读相关代码、接口、已有文档与项目级 pitfall guard；结论写入 `design.md`「现状与约束」。
-2. 写 `requirements.md`（`templates/requirements.md`）：R-xx + 用户场景 + 验收标准 + 边界异常 + 范围外。→ CP1（可与 CP2 合并停一次）。
-3. 写 `design.md`（`templates/design.md`）：代码落点、数据模型、接口契约、后端设计、前端设计（涉及 UI 必写全）、需求追踪矩阵。
-4. 写 `tasks.md`（`templates/tasks.md`）：任务 ≤1 会话，每任务有关联需求/涉及文件/验收标准/测试要求/依赖，先打通最小端到端链路。
-5. 运行 `check_spec.py`，无 error 后到 **CP2** 停下，请用户确认。
-6. 按「开发会话协议」逐任务开发。
-7. 全部任务完成后：按 R-xx 验收标准逐条走查，产出 `acceptance/manual-test-checklist.md` → CP3 等待人工测试；反馈进入变更管理。
-
-## 流程 L（项目级 Spec 模式）
-
-需求大纲 → 需求梳理 → BRD → 模块拆分 + 模块 spec → task-list-overall → 确认 → 并行开发 → 单项测试 → 结合测试 → 人工测试 → 变更回流 BRD。存量项目只针对本次需求做此流程，不重写整个项目文档，但必须做现状调研并写入 BRD「现状与集成点」。
-
-### 阶段 0 需求梳理（需求模糊或描述不足时必做）
-
-- 用 `references/planning-guide.md` 的问题清单分批提问（有 AskQuestion 类工具时优先使用）；每轮 ≤6 个问题，先问阻断性问题。
-- 结论写入 `discovery.md`（`templates/discovery.md`）：目标与成功标准、用户与场景、范围 in/out、问答记录、决策、未决问题。
-- 退出条件：能写出带验收要点的 BRD，且无阻断性未决问题。
-
-### 阶段 1 BRD → CP1
-
-- 用 `templates/brd.md`。核心：BR-xx 列表（每条含优先级与验收要点）、主/异常用户流程、非功能需求、约束与假设、语言约定、模块划分草案（含 `module-common`）、未决问题。
-- 存量项目增加「现状与集成点」：具体文件、接口、表、可复用组件。
-- 到 CP1 停下，请用户确认 BRD。
-
-### 阶段 2 模块拆分与模块 Spec → CP2
-
-- 拆分原则见 `references/planning-guide.md`：按业务领域/页面群/服务边界拆；模块间只通过 `module-common` 中声明的契约交互；共享的领域模型、接口约定、错误码、权限、公共组件与工具放 `module-common`。
-- 每个模块写三件套（`templates/requirements.md`、`templates/design.md`、`templates/tasks.md`）。每条 R 标注来源 BR；`design.md` 的前端设计与后端设计分别按 `references/frontend-quality.md`、`references/backend-quality.md` 的「设计阶段产出要求」写全。
-- 写 `task-list-overall.md`（`templates/task-list-overall.md`）：阶段 0 common → 阶段 1 最小端到端链路 → 阶段 2+ 扩展；每任务标依赖与阶段。
-- 运行 `check_spec.py` 修到无 error；到 CP2 停下，请用户确认。
-
-### 阶段 3 开发（开发会话协议）
-
-每个开发会话按顺序执行：
-
-1. 读：需求基底的范围/约束/语言约定章节、`module-common/design.md` 的契约部分、本模块三件套、`task-list-overall.md` 中本模块任务及其依赖状态。
-2. 检查依赖任务是否 `已完成`；否则换任务，或将本任务标 `阻塞` 并说明。
-3. 领取 1 个任务，在回复中声明：任务 ID、关联需求、输出、涉及文件、验收标准、测试要求。把 `tasks.md` 与 overall 中该任务置 `进行中`。
-4. 实现，遵守规则 4 的范围栅栏。实现中发现设计错误 → 先更新 `design.md` 并在 record 中标注，不静默偏离。
-5. 验证：运行任务的测试要求；UI 任务执行「浏览器自检流程」；后端任务执行「接口验证流程」；对照 `references/quality-gates.md` 的 DoD 自检。
-6. 收尾：更新 `tasks.md` 与 `task-list-overall.md` 中该任务行；写 `records/`（`templates/record.md`）；回复中列出变更文件、验证命令与结果、未完成项、假设、下一任务建议。
-
-并行规则：一个 Agent 只在一个模块内开发；`module-common` 的任务先于依赖它的模块完成，或由专门的 Agent 负责；overall 只改自己任务所在的行；建议一模块一分支，合并前跑一次 `check_spec.py`。
-
-### 阶段 4 测试与验收 → CP3
-
-- 单项测试：每任务按其「测试要求」执行（单测/接口测试/组件测试）。
-- 结合测试：模块全部任务完成 → 按该模块 R-xx 验收标准逐条走查；跨模块 → 按 BRD 主流程端到端走通，使用真实形态数据。
-- 人工测试：产出/更新 `acceptance/manual-test-checklist.md`（`templates/manual-test-checklist.md`），按用户场景写步骤、预期、结果栏；到 CP3 请用户测试。
-- 反馈的问题一律进入变更管理。
-
-### 变更管理（新需求 / 修改点 / 验收问题）
-
-用户通常这样给：「新需求/修改点：1. … 2. …」。处理顺序：
-
-1. 影响分析：列出受影响的 BR/R/design 章节/T 与模块，判定 feat 或 fix。
-2. 补充细节与方案，写 `changes/YYYY-MM-DD_<feat|fix>_<title>.md`（`templates/change.md`）。
-3. 先改需求基底（BRD 升版本号并在变更记录表加行；M 则改 `requirements.md`），再改相关模块 requirements/design/tasks，再改 `task-list-overall.md`（新增或调整任务）。
-4. 影响范围大或有争议 → 停下确认；否则实施并按开发会话协议收尾。
-5. fix 若暴露设计缺口，同步修正 `design.md`，让文档集与真实系统一致。
-
-## 质量门（摘要）
-
-进入下一阶段前必须过门，细则见 `references/quality-gates.md`：
-
-- **需求门**：每条 R 有 ID、来源 BR、可测验收标准、主/异常场景；范围外明确；无模糊词；未决问题已登记。
-- **设计门**：数据模型/状态机/接口契约完整且与 common 一致；前端设计含页面清单、布局、组件树、五态、交互细节、响应式、文案；后端设计含表结构、校验、错误码、事务、幂等、权限、分页、性能边界；需求追踪矩阵覆盖全部 R。
-- **任务门**：任务 ≤1 会话，有关联需求/涉及文件/验收标准/测试要求/依赖；全部 R 被覆盖；先最小端到端。
-- **完成门（DoD）**：功能真实可用；测试通过；前端/后端自检通过；tasks、overall、record 三处已更新；无范围外改动或已登记。
-
-## 会话收尾清单
-
-- [ ] 文档与代码不矛盾；状态不乐观
-- [ ] 记录/变更文件路径真实存在
-- [ ] 验证命令与结果如实记录（不能运行则说明原因）
-- [ ] 假设 A-xx 与未决问题 Q-xx 在回复中显式列出
-- [ ] 给出下一任务或下一检查点
-
-## 资源
-
-- `references/quality-gates.md`：需求门 / 设计门 / 任务门 / DoD / 放飞自我反模式 / 文档写作规范
-- `references/frontend-quality.md`：前端设计阶段产出要求、实现基准、浏览器自检流程
-- `references/backend-quality.md`：后端设计阶段产出要求、实现基准、接口验证流程
-- `references/planning-guide.md`：需求梳理问题清单、BRD 写作指南、模块拆分与任务拆分原则、存量项目调研清单
-- `templates/`：discovery、brd、requirements、design、tasks、task-list-overall、record、change、manual-test-checklist
-- `scripts/init_spec.py`（脚手架）、`scripts/check_spec.py`（追踪与一致性检查）
+模板按需取用：[requirements](templates/requirements.md)、[design](templates/design.md)、[tasks](templates/tasks.md)、[BRD](templates/brd.md)、[record](templates/record.md)、[change](templates/change.md)、[discovery](templates/discovery.md)、[spike](templates/spike.md)、[验收](templates/manual-test-checklist.md)。
+不为没有需求的模块、状态或流程填空。完整示例与执行说明见 [examples](examples/README.md)。

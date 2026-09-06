@@ -1,0 +1,18 @@
+{
+  "command": "python scripts/check_spec.py examples/m-filter-export/spec --stage done --check-overall --json",
+  "expected_exit": 0,
+  "actual_exit": 0,
+  "output": {
+    "version": "2.0.0",
+    "stage": "done",
+    "errors": [],
+    "warnings": [],
+    "scope_digest": "6bc51eaa0d7c530336b8abed044ae1949b98e2dbd75979200212d3ea3e47777f",
+    "increment_digest": "ea4790cddf3889997fc3439d9513e8bc27c19587172d69b88aa107db6cc17c9b",
+    "task_digests": {
+      "T-EXPORT-01": "ce682fa2d4311ee73f82dcd307b35307aa2dfee443ea7276d0bd5e1517b5c304"
+    },
+    "meaning": "仅结构、引用与声明完整性检查；不证明批准真实、代码正确或测试实际执行。"
+  },
+  "stderr": ""
+}

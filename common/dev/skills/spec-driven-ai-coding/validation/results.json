@@ -1,0 +1,50 @@
+{
+  "package_version": "2.0.0",
+  "baseline_commit": "11ce270ed74c86027334f7aae01805912645e99b",
+  "completed_at_utc": "2026-09-05T20:45:18.913123+00:00",
+  "python": "3.13.5",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "self_tests": {
+    "executed": 116,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "evidence": "self-tests.txt"
+  },
+  "executable_example": {
+    "executed": 10,
+    "failures": 0,
+    "errors": 0,
+    "evidence": "../examples/m-filter-export/spec/evidence/unittest.txt"
+  },
+  "gate_checks": [
+    {
+      "name": "m-done",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "name": "l-ready",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "name": "l-no-approval",
+      "expected_exit": 1,
+      "actual_exit": 1
+    }
+  ],
+  "agent_evaluations": {
+    "status": "not_run",
+    "scenarios": 14
+  },
+  "not_tested": [
+    "真实 Coding Agent A/B",
+    "真实多 Agent 并行",
+    "浏览器宿主集成",
+    "用户业务仓库运行",
+    "Windows/macOS 原生环境",
+    "Python 3.10/3.12 等其他解释器版本"
+  ],
+  "remote_mutations": false
+}

@@ -1,0 +1,21 @@
+Executed at (UTC): 2026-09-05T20:41:30.581026+00:00
+CWD: examples/m-filter-export
+Command: python -m unittest discover -s . -p test_*.py -v
+Python: 3.13.5
+Exit code: 0
+
+test_csv_quoting_and_newlines (test_export_rows.ExportTests.test_csv_quoting_and_newlines) ... ok
+test_done_selection_preserves_order (test_export_rows.ExportTests.test_done_selection_preserves_order) ... ok
+test_empty_input_has_only_header (test_export_rows.ExportTests.test_empty_input_has_only_header) ... ok
+test_formula_leading_text_is_prefixed (test_export_rows.ExportTests.test_formula_leading_text_is_prefixed) ... ok
+test_generator_input (test_export_rows.ExportTests.test_generator_input) ... ok
+test_input_not_mutated (test_export_rows.ExportTests.test_input_not_mutated) ... ok
+test_no_match_has_only_header (test_export_rows.ExportTests.test_no_match_has_only_header) ... ok
+test_rejects_bad_filter (test_export_rows.ExportTests.test_rejects_bad_filter) ... ok
+test_rejects_invalid_rows_even_if_not_selected (test_export_rows.ExportTests.test_rejects_invalid_rows_even_if_not_selected) ... ok
+test_todo_selection (test_export_rows.ExportTests.test_todo_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.001s
+
+OK
