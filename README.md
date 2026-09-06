@@ -60,6 +60,11 @@ qiuye-skills/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
     │   └── cases/backdrop-filter-glass-blur.md
+    ├── qiuye-smooth-scroll/
+    │   ├── SKILL.md
+    │   ├── agents/openai.yaml
+    │   ├── references/
+    │   └── assets/
     ├── geometric-mask-transition/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
@@ -122,6 +127,18 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill project-pitfa
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-edge-gradient-mask
+```
+
+---
+
+#### `qiuye-smooth-scroll` — 全局平滑滚动与兼容接入
+
+为 Windows 离散滚轮和滚动驱动动画接入连续的真实页面滚动。优先复用已有引擎，提供 Lenis 控制器、可选原生 API 交接与基础 CSS 模板，覆盖 Motion hooks、sticky、嵌套滚动、弹窗锁定、路由恢复、按需 RAF 和 reduced motion；附 React / Next.js 适配说明与浏览器验收清单。
+
+**触发词：** 全局平滑滚动、滚轮逐格跳动、平滑滚动兼容、smooth scrolling、Lenis、scroll-driven animation jitter
+
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-scroll
 ```
 
 ---

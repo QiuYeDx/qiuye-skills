@@ -1,0 +1,4 @@
+interface:
+  display_name: "QiuYe Smooth Scroll"
+  short_description: "接入平滑滚轮并验证 Motion、原生滚动、弹窗与路由兼容性"
+  default_prompt: "使用 $qiuye-smooth-scroll 为当前项目接入平滑滚轮，保留现有滚动 hooks、程序化滚动、弹窗和路由行为，并在浏览器中验证。"
