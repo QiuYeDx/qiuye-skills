@@ -96,7 +96,7 @@ type OverlayPhase = "closed" | "opening" | "open" | "closing";
 
 1. **共享元素**（两端都有的标题 / 徽章 / 序号）：`layoutId` + `LayoutGroup` 作用域 + `layoutCrossfade={false}`（避免双份文字重影），transition 与容器同参数
 2. **旧内容**（卡片描述、图标等非共享部分）：opening 时淡出 0.18–0.2s，closing 时恢复不透明等克隆落地
-3. **新内容**（详情数据、按钮等"卫星内容"）：`opacity: 0, y: 5` 起步，容器基本就位后淡入；closing 时立即淡出
+3. **新内容**（详情数据、按钮等"卫星内容"）：从 `opacity: 0` 起步，容器基本就位后淡入；closing 时立即淡出。需要方向感时可附加小幅位移（见策略 A 的可选增强），不默认要求所有内容都移动。
 
 关闭回程的共享元素处理：详情侧**注销 `layoutId`**（渲染普通元素 + `invisible` 占位保尺寸），同名 `layoutId` 接力棒交回卡片侧，Motion 自动迁回，无需手写回程。
 
@@ -142,7 +142,7 @@ const CONTENT_EASE = [0.23, 1, 0.32, 1] as const;
     <AnimatePresence initial={false}>
       {!isOpen && (
         <motion.button key="trigger" onClick={openPanel}
-          className="absolute top-0 right-0 flex h-7 items-center px-2.5"
+          className="morph-trigger absolute top-0 right-0 flex h-7 items-center bg-transparent px-2.5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 0.14, delay: 0.24, ease: CONTENT_EASE } }}
           exit={{ opacity: 0, transition: { duration: 0.1 } }}>
@@ -153,7 +153,7 @@ const CONTENT_EASE = [0.23, 1, 0.32, 1] as const;
 
     {/* 展开态：常驻挂载，只切 opacity + inert（面板内部状态不丢失） */}
     <motion.div ref={panelContentRef}
-      className="absolute top-0 right-0 w-[min(48rem,calc(100vw-2rem))]"
+      className="morph-panel-content absolute top-0 right-0 w-[min(48rem,calc(100vw-2rem))]"
       initial={false}
       animate={{ opacity: isOpen ? 1 : 0 }}
       transition={{
@@ -170,6 +170,35 @@ const CONTENT_EASE = [0.23, 1, 0.32, 1] as const;
 ```
 
 时序规律：容器先行（t=0 spring），新内容 delay 0.08s 淡入，旧内容立即淡出；关闭反向（面板内容立即淡出，触发器 delay 0.24s 出现）。
+
+#### 可选增强：沿变形方向轻移交接
+
+当外壳的扩展方向明确，而两组内容原地交叉淡入淡出显得静止、像在替换两张图层时，可以让内容沿同一方向轻移，让用户更容易感知两个状态的承接。纯淡入淡出本身是有效方案；若现有节奏已经自然，或外壳 / 共享元素的运动已经足够明显，就保留原效果。不要为了统一而批量添加位移。
+
+**已验证的取舍**：QiuVision 右下角“跳转时间”导航加入方向位移后，用户认为衔接更舒适；同页筛选按钮与面板保留原有效果也自然。因此这是逐个组件评估的增强手法，不是容器变形的必选规则。
+
+以右下角固定、向左上展开的时间导航为例：
+
+| 内容层 | 展开 | 收起 |
+|---|---|---|
+| 触发器内容 | 从 `(0, 0)` 向左上 `(-4, -6)` px 轻移并淡出 | 从左上回到 `(0, 0)` 并淡入 |
+| 面板内容 | 从右下 `(6, 10)` px 回到 `(0, 0)` 并淡入 | 向右下 `(6, 10)` px 轻移并淡出 |
+
+两组内容在展开时都朝左上运动，收起时都朝右下返回；偏移相对各自最终布局计算，无需让文字横跨整个面板。其他锚点应按实际扩展方向调整正负号与轴向，不照搬左上方向。位置变化本身没有明确方向时，可只保留 opacity。
+
+这次实例的时序可作为调试起点，并非通用标准：
+
+| 动画 | 时长 | 延迟 |
+|---|---|---|
+| 外壳宽高 | `0.36s` spring，`bounce: 0` | 无 |
+| 触发器淡出 / 淡入 | `0.12s` / `0.18s` | 无 / `0.10s` |
+| 面板淡入 / 淡出 | `0.22s` / `0.14s` | `0.06s` / 无 |
+
+内容的 `x`、`y` 与 opacity 使用同一缓动 `[0.22, 1, 0.36, 1]`。先让旧内容让位，再让新内容接入；用少量错峰避免两组文字抢占注意力，也不要延迟到容器已停稳才开始移动。
+
+实现时由 Motion 控制内容层的 `x/y`，不改变外壳背景、描边或布局尺寸。上面的实例让两组内容常驻挂载，以 `initial={false}` 和状态目标反向播放，保留 `inert` 与焦点管理；沿用 `AnimatePresence` 卸载触发器的实现时，要同时为 `initial/animate/exit` 设置对应位置，避免重挂载时从错误方向跳入。`useReducedMotion` 下位移、时长和延迟都归零。
+
+只在对比后观感有改善时采用。验收时检查双向过渡、快速反向操作、首屏无意外入场，以及文字在裁剪边缘是否过早露出或被切断；若增加漂浮感、重叠或拖沓感，先减小位移 / 调整错峰，必要时恢复纯淡入淡出。
 
 ### 策略 B：矩形迁移（占位 + 克隆飞行）
 
@@ -303,6 +332,7 @@ function readCenteredPanelRect(contentHeight = 0) {
 
 - 列出共享元素（两端都有的），套 `layoutId` + `layoutCrossfade={false}`，放进 `LayoutGroup`
 - 旧内容 opening 淡出、closing 恢复；新内容延迟淡入、closing 立即淡出
+- 仅在原地交叉淡入淡出缺少衔接感时，尝试策略 A 的方向位移增强并对比；已有自然节奏的组件保留原效果
 - 关闭回程：详情侧注销 layoutId（普通元素 + `invisible`）
 
 ### Step 5: 补环境层与可访问性
@@ -315,6 +345,8 @@ function readCenteredPanelRect(contentHeight = 0) {
 ### Step 6: 逐帧验证
 
 双向过渡各采样首帧（约 16ms）、中间态（80–300ms）、结束帧，检查容器几何、共享元素、旧 / 新内容、遮罩与阴影。
+
+策略 A 额外检查：hover 后点击展开；关闭后指针停在触发器最终位置；过渡中移入 / 移出。浅色、深色下都检查触发器局部底色与外壳描边（见坑 10），不要只截图静止终态。
 
 ---
 
@@ -366,6 +398,35 @@ function readCenteredPanelRect(contentHeight = 0) {
 
 **修复**：overlay 挂载期间拦截 `wheel` / `touchmove`（`passive: false`），事件目标在浮层内部时放行。
 
+### 坑 10: hover 后展开 / 收起，触发器留下矩形色块或描边短暂缺失
+
+**症状**：静止时按钮看似正常，变形过程中却露出一块不同底色，或外壳描边被遮住一段。常见于策略 A 中固定尺寸、绝对定位且独立淡出的触发按钮。
+
+**原因**：外壳负责背景与描边，但 `.shell button:hover` 一类宽泛规则又给触发器填充实色。触发器与外壳的几何、透明度变化不同步，局部背景便在过渡中显露；子元素背景还可能盖住外壳的 inset box-shadow 描边。即使没有修改 border 属性，也会产生边框变化的观感。
+
+**修复**：
+
+- 由持续存在的外壳承载整体背景与描边，触发器默认保持透明。将面板内部的 hover 底色规则限定到内容层，避免误匹配触发器；已有 `hover:bg-*` 等工具类也需检查。
+- 默认让触发器 hover 只提供轻微的文字 / 图标反馈，保留键盘 `focus-visible`。若设计需要整面底色变化，交给外壳或随外壳尺寸变化的装饰层，并检查与变形时序的配合。
+- 若面板内容仍会覆盖描边，可参考筛选面板采用置于内容上方、`pointer-events: none` 的独立描边层；替换原描边，避免双重边框。仅移除触发器底色即可解决时，不必新增图层。
+
+```css
+/* 与策略 A 模板配合；同时移除原有的 .shell button:hover 通配规则。 */
+.morph-trigger {
+  background: transparent;
+}
+
+@media (hover: hover) {
+  .morph-panel-content a:hover,
+  .morph-panel-content button:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+}
+```
+
+不要仅通过缩短动画、给触发器补圆角或延长背景 transition 掩盖问题：这些调整无法让固定尺寸的子背景与正在变形的外壳保持一致。此建议针对共用外壳的变形触发器，不限制普通按钮或面板内部控件的 hover 样式。
+
 ---
 
 ## 动效参数建议
@@ -384,6 +445,8 @@ function readCenteredPanelRect(contentHeight = 0) {
 ## 验收清单
 
 - [ ] 过渡全程容器边框、圆角、文字无拉伸变形（逐帧检查）
+- [ ] 策略 A：浅色 / 深色下，hover 后展开、指针停留时收起及过渡中移入 / 移出均无局部色块或描边遮挡；键盘焦点仍清晰可见
+- [ ] 若采用方向位移：双向运动与实际变形方向一致，快速反向无跳位，文字无额外裁剪 / 重叠，reduced motion 下位移与延迟归零；未采用时无需补齐此效果
 - [ ] 策略 B：卡片起飞后网格布局不塌陷、其他卡片不动
 - [ ] 首次打开无 0 尺寸闪烁或跳变
 - [ ] 过渡中面板 / 浮层内容不可点击、不可 Tab 聚焦

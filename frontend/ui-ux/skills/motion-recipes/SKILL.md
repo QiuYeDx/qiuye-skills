@@ -95,7 +95,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 4 | 用 layoutDependency 隔离无关布局变化 | [cases/layout-dependency-isolate-indicator.md](cases/layout-dependency-isolate-indicator.md) | `layoutDependency`、Segmented Control / Tabs 选中指示器、祖先高度变化、未交互控件上下漂移 |
 | 5 | 测量内容高度并平滑动画 auto → auto | [cases/measured-auto-height-content.md](cases/measured-auto-height-content.md) | `useMeasure`、`ResizeObserver`、同一内容树动态增减、异步内容 / 校验信息 / 响应式换行、精确高度裁剪 |
 | 6 | 列表增删、Presence 与位置重排 | [cases/list-presence-layout-reorder.md](cases/list-presence-layout-reorder.md) | `AnimatePresence`、`popLayout`、`layout="position"`、Flex/Grid 批量增删、旧坐标退出快照、首帧 paint、快速切换 |
-| 7 | 容器变形过渡（Container Transform） | [cases/container-transform-morph.md](cases/container-transform-morph.md) | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、相位状态机、遮罩 / 柔影 / 焦点管理 |
+| 7 | 容器变形过渡（Container Transform） | [cases/container-transform-morph.md](cases/container-transform-morph.md) | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、相位状态机、遮罩 / 柔影 / 焦点管理、hover 底色残块与描边遮挡 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -166,6 +166,8 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「FAB 点击后变成对话框 / 图片点开变居中灯箱」
 - 「用 layoutId 包整个卡片做展开，过渡中文字拉伸、圆角变形」
 - 「卡片和详情共用标题 / 徽章，过渡时要跟着飞」
+- 「按钮 hover 后展开 / 收起，过渡中出现矩形底色或边框短暂缺失」
+- 「容器变形时内容原地淡入淡出有些呆滞，想尝试沿展开 / 收起方向轻移衔接」（Case 7 可选增强，按组件评估）
 - 筛选面板、搜索框展开、内联编辑、卡片详情浮层、图片灯箱、FAB → Dialog、通知项 → 通知中心
 
 <!--
