@@ -1,0 +1,4 @@
+interface:
+  display_name: "自然文字衬底"
+  short_description: "通过柔和字影与主题感知的渐隐衬底，自然提升复杂背景上的文字可读性。"
+  default_prompt: "使用 $qiuye-soft-text-backdrop 为这段文字添加自然阴影和局部渐隐衬底，提升可读性并适配深浅主题与窄屏。"

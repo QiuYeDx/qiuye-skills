@@ -56,6 +56,10 @@ qiuye-skills/
 └── frontend/ui-ux/skills/
     ├── edge-gradient-mask/
     │   └── SKILL.md
+    ├── qiuye-soft-text-backdrop/
+    │   ├── SKILL.md
+    │   ├── agents/openai.yaml
+    │   └── references/implementation.md
     ├── frontend-pitfalls/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
@@ -118,6 +122,18 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill project-pitfa
 ---
 
 ### frontend/ui-ux — 前端 UI/UX
+
+#### `qiuye-soft-text-backdrop` — 自然文字阴影与渐隐衬底
+
+从 QiuVision 首页 Hero 与关于页提取的文字可读性方案：柔和字影保护文字轮廓，背景同色的局部渐隐衬底减弱视觉干扰。包含无依赖 CSS 模板、两处真实参数、主题与图片场景适配、层级替代方案、响应式调参与视觉验收。
+
+**触发词：** 文字背后的自然阴影、文字与背景分离、柔和文字衬底、Hero 文案可读性、soft text shadow、text backdrop、scrim
+
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-soft-text-backdrop
+```
+
+---
 
 #### `qiuye-edge-gradient-mask` — 边缘渐变淡出遮罩
 
