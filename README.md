@@ -135,6 +135,8 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-edge-gr
 
 为 Windows 离散滚轮和滚动驱动动画接入连续的真实页面滚动。优先复用已有引擎，提供 Lenis 控制器、可选原生 API 交接与基础 CSS 模板，覆盖 Motion hooks、sticky、嵌套滚动、弹窗锁定、路由恢复、按需 RAF 和 reduced motion；附 React / Next.js 适配说明与浏览器验收清单。
 
+模板默认在 iOS/iPadOS 跳过整个控制器，保留原生触摸滚动，并提供 `disableOnIOS: false` 覆盖选项；说明 `syncTouch: false` 与不安装触摸监听的区别，以及真机对比的验收边界。
+
 **触发词：** 全局平滑滚动、滚轮逐格跳动、平滑滚动兼容、smooth scrolling、Lenis、scroll-driven animation jitter
 
 ```bash

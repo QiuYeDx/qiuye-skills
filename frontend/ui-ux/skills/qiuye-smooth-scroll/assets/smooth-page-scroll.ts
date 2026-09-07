@@ -13,7 +13,17 @@ const SCROLL_KEYS = new Set([
 ]);
 
 /** Smooth wheel input on the real document, preserving native scroll coordinates. */
-export function createSmoothPageScroll({ nativeScrollInterop = false } = {}) {
+export function createSmoothPageScroll({
+  nativeScrollInterop = false,
+  disableOnIOS = true,
+} = {}) {
+  // iPadOS can use a desktop Mac UA. Return before installing any listeners,
+  // observers or native scroll API wrappers, not just before creating Lenis.
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (disableOnIOS && isIOS) return () => {};
+
   const root = document.documentElement;
   const body = document.body;
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -166,4 +176,3 @@ export function createSmoothPageScroll({ nativeScrollInterop = false } = {}) {
     reducedMotion.removeEventListener("change", sync);
   };
 }
-

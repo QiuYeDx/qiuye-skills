@@ -10,6 +10,8 @@
 
 ## 普通 TypeScript
 
+以下接入示例均沿用模板的 `disableOnIOS: true` 默认值。
+
 ```ts
 import { createSmoothPageScroll } from "./smooth-page-scroll";
 
@@ -56,6 +58,18 @@ export function SmoothPageScroll() {
 模板 `anchors: false`，点击捕获阶段先释放惯性，浏览器负责锚点 URL、焦点与历史。不要再同时启用另一套锚点拦截器。若选择 Lenis 的 anchors 功能，应以安装版本实际行为验证 URL、焦点、修饰键点击、路由同路径不同 query 和不可见目标。
 
 不要不加审查地叠加完整 Lenis CSS：其中 stopped overflow 和滚动时 iframe pointer-events 规则可能影响既有弹窗滚动条补偿与嵌入内容。若采用 autoToggle，则使用该功能要求的样式并核对目标浏览器支持。
+
+## iOS / iPadOS 触摸策略
+
+以桌面 wheel 增强为目的时，优先让 iOS 使用原生滚动，模板默认 `disableOnIOS: true`。入口在创建 Lenis、安装事件监听、observer 和原生 API 包装之前直接返回空 cleanup；不要只在 `sync()` 内跳过实例，否则外围接管逻辑仍会安装。基础 Lenis 接入也应在初始化前做同样的平台选择。
+
+Lenis 1.3.23 的 `syncTouch: false` 仅禁用触摸平滑，VirtualScroll 仍以 `passive: false` 注册 `touchstart/touchmove`。浏览器可能因此等待主线程；这是排查依据，不能仅凭监听配置断定它是卡顿根因。升级后检查实际版本的实现。
+
+模板识别 iPhone/iPad/iPod UA，以及 `navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1` 的 iPadOS 桌面模式。这是兼容性启发式，不是可靠硬件识别；不要只按视口宽度禁用，或把所有有触摸点的 Windows/Android 设备当成 iOS。平台判断仅在客户端初始化时执行，不进入 SSR 渲染。
+
+代价是 iPad 外接鼠标或触控板也不再启用 Lenis。若项目明确需要这种输入的平滑行为，可传 `disableOnIOS: false`，并单独验证手指、鼠标和触控板。不要把这个案例变成所有 iOS 项目都必须禁用 Lenis 的规则。
+
+原生 CSS `scroll-behavior: smooth` 作用于锚点及程序化滚动，不接管手指拖动；无需为此一起移除。对比时先保留滚动关联动效，以便判断控制器的影响。若改善有限，继续测量主线程、布局、WebGL 渲染及动效是否叠加缓动，不用加长 duration 掩盖卡顿。
 
 ## 锁定与嵌套容器
 

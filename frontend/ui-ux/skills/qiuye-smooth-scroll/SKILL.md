@@ -38,6 +38,7 @@ description: >-
 
 - 更新真实 `scrollY/scrollTop`，保留原生 scroll 事件与文档流；现有 Motion hooks、IntersectionObserver、sticky 使用同一坐标体系。
 - 默认只平滑纵向 wheel；触摸保持原生惯性，Ctrl 缩放、Shift/横向手势和已被其他控件消费的事件不抢占。
+- 对以桌面滚轮增强为目的的项目，模板默认在 iOS/iPadOS 跳过整个控制器。`syncTouch: false` 不等于不安装触摸监听；平台识别、取舍与覆盖选项见 [接入与框架适配](references/integration.md#ios--ipados-触摸策略)。
 - 键盘、指针按下、锚点、导航和外部程序化滚动可以打断惯性；不强制等待动画结束，也不擅自重置路由位置。
 - 遵守动态变化的 reduced motion；后台和弹窗锁定时取消残余惯性，恢复时从真实位置重建。
 - 区分内部滚动容器与页面滚动；弹窗内能滚动不代表背景可以继续滚动。
@@ -53,6 +54,6 @@ description: >-
 
 ## 来源与适用范围
 
-模板基于 QiuVision 中 Lenis 1.3.23 的实际实现：Windows Chromium 上验证了滚轮、原生 API、路由、嵌套容器和图片预览，另有移动视口触摸模拟。它不等于 Safari、Firefox 或真实 iOS 已验收。
+模板基于 QiuVision 中 Lenis 1.3.23 的实际实现：Windows Chromium 上验证了滚轮、原生 API、路由、嵌套容器和图片预览，另有移动视口触摸模拟。2026-09-07 用户真机反馈：iOS 完全跳过控制器后有小幅改善，但差别不大，因此保留该策略；设备型号、系统和浏览器版本未记录。这不代表卡顿已消除，也不等于完整的 Safari、Firefox 或 iOS 兼容性验收。
 
 依赖以目标项目安装版本和 [Lenis 官方文档](https://github.com/darkroomengineering/lenis) 为准；不要将版本基线、Next.js 配置、原项目包管理器或窗口尺寸推广为所有项目的硬性规则。
