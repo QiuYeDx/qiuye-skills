@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI 质量与自主验收"
+  short_description: "以项目视觉为依据实现界面，通过真实状态自检、修复和复验减少人工反复纠偏。"
+  default_prompt: "使用 $qiuye-ui-quality 实现或优化这个界面，先确定项目参照与验收样本，再自主审查和修复视觉、布局及交互问题后交付。"

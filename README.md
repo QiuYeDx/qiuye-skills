@@ -54,6 +54,11 @@ qiuye-skills/
 │       ├── references/project-pitfall-guard-contract.md
 │       └── scripts/bootstrap_project_pitfall_guard.py
 └── frontend/ui-ux/skills/
+    ├── qiuye-ui-quality/
+    │   ├── SKILL.md
+    │   ├── agents/openai.yaml
+    │   ├── references/
+    │   └── evals/scenarios.md
     ├── edge-gradient-mask/
     │   └── SKILL.md
     ├── qiuye-soft-text-backdrop/
@@ -122,6 +127,20 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill project-pitfa
 ---
 
 ### frontend/ui-ux — 前端 UI/UX
+
+#### `qiuye-ui-quality` — UI 质量与自主验收
+
+先确定项目视觉参照、组件变体与空间关系，再实现界面并通过真实渲染主动找问题、修复和复验。覆盖边距与圆角附近等距留白、信息密度、多行对齐、纵向高度预算、横向空间利用、分页、文件名、Tooltip 和组合交互状态；附失误原因、测量方法与行为评估场景。
+
+通用 Skill 不规定品牌风格和固定像素值，项目视觉约定留在项目级 Skill；验证范围随改动影响调整，支持局部修复、页面重写与只读评审。评估场景不代表已经证明模型首轮通过率。
+
+**适用请求：** UI/UX 实现与重写、界面打磨、视觉一致性、边距与密度优化、交付前自检、减少反复人工纠偏。
+
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-ui-quality
+```
+
+---
 
 #### `qiuye-soft-text-backdrop` — 自然文字阴影与渐隐衬底
 
