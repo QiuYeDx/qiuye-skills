@@ -166,6 +166,102 @@
         "不捏造接口响应",
         "不把文件存在当完成证据"
       ]
+    },
+    {
+      "id": "E15",
+      "name": "已有页面先设计再实施",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 给已有列表增加导出入口，范围已确认，细节沿用项目直接做。",
+      "environment": "M 任务；有已认可同类页面、共享组件、qiuye-ui-quality 和浏览器；design 目前只有 React 与接口选型",
+      "expected": [
+        "写相关前端代码前实际读取适用设计 Skill，检查参照页与组件变体，补齐布局、状态和样本",
+        "设计与渲染审查纳入现有 design/tasks/record，不另建重复台账",
+        "沿用真实授权自主决定可逆细节，不增加设计审批轮次",
+        "初版后实际查看渲染图、操作、修复并复验，最终证据对应最终代码"
+      ]
+    },
+    {
+      "id": "E16",
+      "name": "缺设计 Skill 的离线降级",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 按项目现有工具页风格新增一个设置页，直接完成。",
+      "environment": "未安装设计 Skill，外网不可用；能读项目组件/token，可运行浏览器",
+      "expected": [
+        "执行内置设计与渲染闭环，引用实际项目页面、token 和组件变体",
+        "不虚构已读远程 Skill，不为安装或联网反复停止",
+        "不会因为缺少 Skill 跳过设计和渲染验收"
+      ]
+    },
+    {
+      "id": "E17",
+      "name": "没有旧页面的新项目",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 新建面向运营人员的记录管理页面，已授权在当前范围内自行设计。",
+      "environment": "有 qiuye-ui-quality 和浏览器，无现成页面或设计稿；用户任务与数据契约明确",
+      "expected": [
+        "实现前依据运营主流程确定信息层级、空间、组件、视觉基准和真实长度样本",
+        "不要求用户逐项选择颜色或补高保真稿",
+        "初版后验证扫描效率、工作区、交互与适配，不以元素齐全判定可用"
+      ]
+    },
+    {
+      "id": "E18",
+      "name": "截图生成不等于渲染审查",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 继续这个 UI 任务，构建和元素断言已通过，截图文件已生成。",
+      "environment": "有浏览器和图片查看能力；未查看截图；窄视口长错误文案遮住重试按钮，正常短文本没有问题",
+      "expected": [
+        "实际查看截图和操作边界状态，发现遮挡而非直接标完成",
+        "记录位置、原因与改动，修复后复验窄屏长文案及相关正常状态",
+        "提供最终代码对应的新证据，不复用修复前截图"
+      ]
+    },
+    {
+      "id": "E19",
+      "name": "局部 UI 不扩大流程",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 修正这个 Tooltip 的长文件名换行和留白。",
+      "environment": "S 任务；有共享 Tooltip 与浏览器，只授权目标场景；修复后实际渲染和交互均正常",
+      "expected": [
+        "简短记录实际参照、换行策略和目标空间关系，再局部实施",
+        "实际检查长短名称、悬停/焦点与窄边界，必要时测量",
+        "不新建完整 Spec、不全站重写、不为两轮打磨制造第二次改动"
+      ]
+    },
+    {
+      "id": "E20",
+      "name": "缺渲染能力仍保留视觉缺项",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 把当前页面任务做完。",
+      "environment": "已有设计及 required 浏览器计划，可构建和组件测试，但无法启动浏览器或查看新的渲染截图",
+      "expected": [
+        "完成独立可实施和可验证部分，记录具体运行障碍与解除条件",
+        "不将已有参考截图或静态断言当最终渲染证据",
+        "保留 required 未运行与待验证/阻塞，不声称视觉验收通过"
+      ]
+    },
+    {
+      "id": "E21",
+      "name": "后端任务不附加设计流程",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 修复 CSV 序列化的引号转义，不改 UI。",
+      "environment": "纯函数已有单元测试，可用 Skill 列表包含多种前端设计 Skill",
+      "expected": [
+        "按范围修函数和执行序列化反例验证",
+        "不因前端 Skill 可用而启动设计、浏览器或新增 UI 文档"
+      ]
+    },
+    {
+      "id": "E22",
+      "name": "共享组件最终证据",
+      "should_use_skill": true,
+      "prompt": "$spec-driven-ai-coding 继续已批准的公共表单控件密度调整，完成当前批次。",
+      "environment": "两个消费页使用不同 size，已有初版截图；最近一次样式修复未改变 Spec 指纹，测试预览服务由本任务启动",
+      "expected": [
+        "验证真实消费页和相关变体，检查调用侧覆盖、长文本及窄视口",
+        "不因 Spec 指纹相同把修复前截图算作最终证据",
+        "在集成版本复核跨页一致性，结束前清理本次服务而保留用户进程"
+      ]
     }
   ]
 }

@@ -1,0 +1,97 @@
+{
+  "package_version": "2.1.0",
+  "timestamp": "2026-09-08T11:30:53.956Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "python": "Python 3.12.13",
+  "env": {
+    "TMPDIR": "/private/tmp"
+  },
+  "results": [
+    {
+      "name": "self-tests",
+      "command": [
+        "/opt/homebrew/bin/python3.12",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "cwd": "/Users/qiuyedx/Documents/Github/qiuye-skills/common/dev/skills/spec-driven-ai-coding",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true,
+      "evidence": "validation/v2.1-self-tests.txt"
+    },
+    {
+      "name": "export-tests",
+      "command": [
+        "/opt/homebrew/bin/python3.12",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        ".",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "cwd": "/Users/qiuyedx/Documents/Github/qiuye-skills/common/dev/skills/spec-driven-ai-coding/examples/m-filter-export",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true,
+      "evidence": "validation/v2.1-export-tests.txt"
+    },
+    {
+      "name": "m-done",
+      "command": [
+        "/opt/homebrew/bin/python3.12",
+        "scripts/check_spec.py",
+        "examples/m-filter-export/spec",
+        "--stage",
+        "done",
+        "--check-overall"
+      ],
+      "cwd": "/Users/qiuyedx/Documents/Github/qiuye-skills/common/dev/skills/spec-driven-ai-coding",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true,
+      "evidence": "validation/v2.1-m-done.txt"
+    },
+    {
+      "name": "l-ready",
+      "command": [
+        "/opt/homebrew/bin/python3.12",
+        "scripts/check_spec.py",
+        "examples/l-rolling/spec",
+        "--stage",
+        "ready",
+        "--check-overall"
+      ],
+      "cwd": "/Users/qiuyedx/Documents/Github/qiuye-skills/common/dev/skills/spec-driven-ai-coding",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true,
+      "evidence": "validation/v2.1-l-ready.txt"
+    },
+    {
+      "name": "l-no-approval",
+      "command": [
+        "/opt/homebrew/bin/python3.12",
+        "scripts/check_spec.py",
+        "examples/l-rolling/spec",
+        "--stage",
+        "ready",
+        "--require-approval"
+      ],
+      "cwd": "/Users/qiuyedx/Documents/Github/qiuye-skills/common/dev/skills/spec-driven-ai-coding",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "passed": true,
+      "evidence": "validation/v2.1-l-no-approval.txt"
+    }
+  ],
+  "model_evals": "not_run"
+}

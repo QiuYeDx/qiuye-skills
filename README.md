@@ -98,13 +98,15 @@ qiuye-skills/
 
 ### common/dev — 通用开发工作流
 
-#### `spec-driven-ai-coding` — 分级 Spec 驱动的 AI Coding 工作流（v2.0.0）
+#### `spec-driven-ai-coding` — 分级 Spec 驱动的 AI Coding 工作流（v2.1.0）
 
 按规模、风险和不确定性选择流程：S 轻量开发与验证；M 使用 `requirements / design / tasks` 与 `spec.json` 批次元数据；L 采用滚动规划，仅细化当前可交付增量。`common` 和多 Agent 并行按需采用，协作边界按实际写集协调。区分 bugfix 与需求变更，沿用明确授权自主执行。
 
 内置需求与验收追踪、前端 / 后端质量门、真实验证证据和可恢复交接。任务状态以 `tasks.md` 为单一来源，总览自动生成。附 10 套模板、测试与示例；`init_spec.py` 创建全新骨架，`check_spec.py` 按 draft / ready / done 检查结构、覆盖、批准及证据是否过期，`render_overall.py` 生成只读总览，`spec_core.py` 提供共用校验逻辑。脚本需要 Python 3.10+，不执行文档中的测试命令，也不能证明业务正确性。
 
 替代原 `large-feature-ai-coding`；存量 v1 文档和旧格式（`*_final_design.md` / `*_execution_plan.md`）可继续沿用。v2 检查器仅支持含 `spec.json` 的新版格式，需要迁移时参见 [迁移说明](common/dev/skills/spec-driven-ai-coding/references/migration.md)。
+
+v2.1 将前端设计与渲染审查接入 S/M/L：写 UI 前明确项目参照、布局、组件和状态，优先使用适用设计 Skill（如 `qiuye-ui-quality`），缺失时使用内置流程；初版后实际看图、操作、修复并复验，以最终代码证据收尾。沿用 v2 文档格式，不增加逐项设计审批；结构检查通过不等于视觉验收通过。
 
 **适用请求：** 明确的 Spec 规划、实施、验证、需求与设计文档、可追踪任务规划、多会话交接、多 Agent 协作，或继续本 Skill 已管理的任务；不会仅因出现 feat / fix / bug / coding 而触发。
 

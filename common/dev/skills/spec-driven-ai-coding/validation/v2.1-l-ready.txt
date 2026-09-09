@@ -1,0 +1,4 @@
+阶段 ready：0 error，0 warning
+范围指纹：40c76620d541fa1093f09cd77c70f403c9e380b6a18e2d2beee5d01bdae2c213
+批次指纹：38f07c60aabb3b7e6556cbba5a17344ecc162465edd91d0aa004e9851d84ebdd
+仅检查结构与声明完整性，不证明实际批准、实际执行或业务正确性。

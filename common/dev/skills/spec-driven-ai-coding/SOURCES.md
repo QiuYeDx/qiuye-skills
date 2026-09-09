@@ -13,3 +13,5 @@
    https://developers.openai.com/blog/eval-skills
 
 未使用第三方运行时依赖或复制第三方 Skill 代码。自动化测试只对本包行为作出实际运行声明。
+
+v2.1 设计依据（2026-09-08）：同仓库 `frontend/ui-ux/skills/qiuye-ui-quality/SKILL.md` 及 `references/rendered-review.md` 的项目参照、设计关系、渲染审查与修复复验流程。采用本地实际文件，不新增运行时依赖；供安装后读取的来源为 https://github.com/qiuyedx/qiuye-skills/tree/main/frontend/ui-ux/skills/qiuye-ui-quality 。

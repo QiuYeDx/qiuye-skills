@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-VERSION = "2.0.0"
+VERSION = "2.1.0"
 CODE = r"[A-Z][A-Z0-9_]{0,31}"
 RID = rf"R-{CODE}-[0-9]+"
 TID = rf"T-{CODE}-[0-9]+"

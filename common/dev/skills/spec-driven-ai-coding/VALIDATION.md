@@ -1,4 +1,27 @@
-# v2.0.0 验证报告
+# 验证报告
+
+## v2.1.0：2026-09-08
+
+本次修改是前端设计/渲染审查工作流、模板、评估场景与版本元数据；CLI 行为和 v2 schema 未改变。
+
+| 项目 | 实际结果 | 证据 |
+| --- | --- | --- |
+| 解析/状态/追踪/证据/路径/CLI/包一致性回归 | 116 项通过 | [日志](validation/v2.1-self-tests.txt) |
+| CSV 函数示例 | 10 项通过 | [日志](validation/v2.1-export-tests.txt) |
+| M 示例 done + 总览 | 退出码 0 | [结果](validation/v2.1-m-done.txt) |
+| L 示例 ready + 总览 | 退出码 0 | [结果](validation/v2.1-l-ready.txt) |
+| 未批准 L 请求实施 | 正确拒绝，退出码 1 | [反例](validation/v2.1-l-no-approval.txt) |
+
+实际环境：macOS arm64，Python 3.12.13，`TMPDIR=/private/tmp`；命令、工作目录与时间见 [机器记录](validation/v2.1-results.json)。
+首次使用系统 Python 3.9.6 和默认临时目录时，8 项脚手架测试因 macOS `/var` 符号链接触发路径保护而失败；改用真实临时路径后 116 项通过，随后用满足包要求的 Python 3.12.13 完成上表验证。未修改脚本绕过符号链接保护。
+
+调用 `skill-creator/scripts/quick_validate.py` 时，通用校验器因白名单不含本包既有的 `compatibility` frontmatter 字段而退出 1。保留原字段；包内名称、版本、description/compatibility 长度、Markdown 链接、脚本语法及示例检查通过。不将通用校验器的结果报告为通过。
+
+人工核对了入口、S/M/L、ready/done、设计/任务/记录/验收模板的要求，以及已有授权、局部 UI、无设计 Skill、无浏览器、无 UI 的适用边界。E15–E22 为新增行为评估设计；全部 22 个模型场景仍为 `not_run`，未运行跨模型 A/B 或真实业务前端开发实验。脚本测试不能证明模型会设计、看图或正确修复界面。
+
+以下 v2.0 报告与旧日志保留为历史证据，不代表新版已运行相同宿主集成。
+
+## v2.0.0 历史报告
 
 交付日期：2026-09-06（Asia/Tokyo）。日志使用 UTC 时间；若日志为 9 月 5 日，属于时区差异，不是补造执行时间。
 基线提交：11ce270ed74c86027334f7aae01805912645e99b。
