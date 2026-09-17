@@ -2,7 +2,7 @@
 name: motion-recipes
 description: >-
   Motion 动效案例集：提供经过验证的 Motion (framer-motion) 动效实现方案与最佳实践。
-  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、popover auto-height 过渡、测量式动态高度、手势交互、列表动画等常见场景。
+  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、动态高度、列表动画、容器变形与鼠标分层视差。
   每个 case 包含完整模板代码、常见坑位修复与验收清单，确保 AI Agent 能稳定复刻高质量动效。
   Triggers on: "motion", "framer-motion", "layoutId", "AnimatePresence",
   "layout animation", "nav 切换动效", "tabs 动画", "活跃态滑动",
@@ -17,7 +17,8 @@ description: >-
   "元素分批消失", "首帧跳过", "container transform", "容器变形",
   "卡片展开", "卡片放大", "morphing dialog", "hero animation",
   "居中浮层", "详情浮层", "遮罩过渡", "筛选面板展开", "按钮展开面板",
-  "FAB 变对话框", "灯箱过渡", "占位克隆", "视觉克隆".
+  "FAB 变对话框", "灯箱过渡", "占位克隆", "视觉克隆",
+  "鼠标视差", "分层视差", "2.5D", "pointer parallax", "layered parallax", "card tilt".
 ---
 
 # Motion Recipes — 动效案例集
@@ -96,6 +97,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 5 | 测量内容高度并平滑动画 auto → auto | [cases/measured-auto-height-content.md](cases/measured-auto-height-content.md) | `useMeasure`、`ResizeObserver`、同一内容树动态增减、异步内容 / 校验信息 / 响应式换行、精确高度裁剪 |
 | 6 | 列表增删、Presence 与位置重排 | [cases/list-presence-layout-reorder.md](cases/list-presence-layout-reorder.md) | `AnimatePresence`、`popLayout`、`layout="position"`、Flex/Grid 批量增删、旧坐标退出快照、首帧 paint、快速切换 |
 | 7 | 容器变形过渡（Container Transform） | [cases/container-transform-morph.md](cases/container-transform-morph.md) | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、相位状态机、遮罩 / 柔影 / 焦点管理、hover 底色残块与描边遮挡 |
+| 8 | 鼠标驱动的分层 2.5D 视差 | [cases/pointer-layered-parallax.md](cases/pointer-layered-parallax.md) | 卡片配图跟随鼠标、SVG / 图片分层、共享弹簧坐标、轻微倾斜、退出归位、减少动态效果；不用于滚动视差 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -169,6 +171,14 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「按钮 hover 后展开 / 收起，过渡中出现矩形底色或边框短暂缺失」
 - 「容器变形时内容原地淡入淡出有些呆滞，想尝试沿展开 / 收起方向轻移衔接」（Case 7 可选增强，按组件评估）
 - 筛选面板、搜索框展开、内联编辑、卡片详情浮层、图片灯箱、FAB → Dialog、通知项 → 通知中心
+
+### 鼠标驱动的分层 2.5D 视差 → Case 8
+
+- 「卡片配图跟随鼠标位置，产生立体层次感」
+- 「几层纸张 / 面板前后错动，移出后平滑归位」
+- 「实现 layered parallax / pointer parallax / card tilt」
+- 「鼠标跟随时 SVG 原有倾斜或居中丢失」「减弱动态效果后插画仍倾斜」
+- 功能入口、产品卡片、局部 Hero 插画；页面滚动驱动的视差不按本 case 实现。
 
 <!--
 ### [未来 Case 名称] → Case N
