@@ -1,24 +1,13 @@
 ---
 name: motion-recipes
 description: >-
-  Motion 动效案例集：提供经过验证的 Motion (framer-motion) 动效实现方案与最佳实践。
-  涵盖 layoutId 导航切换、AnimatePresence 内容过渡、动态高度、列表动画、容器变形与鼠标分层视差。
-  每个 case 包含完整模板代码、常见坑位修复与验收清单，确保 AI Agent 能稳定复刻高质量动效。
-  Triggers on: "motion", "framer-motion", "layoutId", "AnimatePresence",
-  "layout animation", "nav 切换动效", "tabs 动画", "活跃态滑动",
-  "内容过渡动画", "方向感知动画", "spring animation", "motion 最佳实践",
-  "motion recipes", "动效案例", "layout 动画遮挡", "popover 高度突变",
-  "auto height 动画", "内容高度变化", "popLayout", "height jump",
-  "dynamic height", "auto to auto", "useMeasure", "ResizeObserver", "动态高度测量",
-  "layoutDependency", "祖先布局变化", "indicator 上下漂移", "选中胶囊错位",
-  "shared element", "共享元素过渡", "Header 模式切换", "品牌标题迁移",
-  "过渡态文字变黑", "卫星内容编排", "首帧闪现", "末帧突消",
-  "列表增删", "列表重排", "popLayout", "退出快照", "批量筛选",
-  "元素分批消失", "首帧跳过", "container transform", "容器变形",
-  "卡片展开", "卡片放大", "morphing dialog", "hero animation",
-  "居中浮层", "详情浮层", "遮罩过渡", "筛选面板展开", "按钮展开面板",
-  "FAB 变对话框", "灯箱过渡", "占位克隆", "视觉克隆",
-  "鼠标视差", "分层视差", "2.5D", "pointer parallax", "layered parallax", "card tilt".
+  Motion (framer-motion) 动效案例集。用于实现或修复 layoutId 导航、AnimatePresence
+  内容切换、测量式 auto-height、列表增删重排、容器变形、鼠标分层视差，以及连续布局过渡。
+  用户描述“折叠内容淡入淡出并撑开空间”“下面元素不要瞬移”“外框平滑但里面还闪”
+  “有始有终地移动”时优先读 Case 9；涵盖退出保留、间距、草稿、嵌套与 reduced motion。
+  也匹配 Motion recipes、layout animation、dynamic height、auto to auto、ResizeObserver、
+  popLayout、layoutDependency、shared element、container transform、pointer parallax。
+  用于具体动效实现与排障；仅询问效果名称或全站动效审计时使用对应命名或评审 Skill。
 ---
 
 # Motion Recipes — 动效案例集
@@ -31,7 +20,7 @@ description: >-
 
 **Agent 执行流程：**
 
-1. 根据用户需求，在下方「案例索引」中匹配最相关的 case。
+1. 根据用户需求，在下方「案例索引」中匹配最相关的 case。若同时要求内容显隐、空间伸缩与周围元素连续移动，先读 Case 9；无需逐篇拼读全部案例。
 2. 使用 Read 工具阅读对应 case 文件的完整内容。
 3. 按 case 中的「AI Agent 执行步骤」逐步实施。
 4. 完成后按 case 中的「验收清单」逐项检查。
@@ -98,6 +87,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 | 6 | 列表增删、Presence 与位置重排 | [cases/list-presence-layout-reorder.md](cases/list-presence-layout-reorder.md) | `AnimatePresence`、`popLayout`、`layout="position"`、Flex/Grid 批量增删、旧坐标退出快照、首帧 paint、快速切换 |
 | 7 | 容器变形过渡（Container Transform） | [cases/container-transform-morph.md](cases/container-transform-morph.md) | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、相位状态机、遮罩 / 柔影 / 焦点管理、hover 底色残块与描边遮挡 |
 | 8 | 鼠标驱动的分层 2.5D 视差 | [cases/pointer-layered-parallax.md](cases/pointer-layered-parallax.md) | 卡片配图跟随鼠标、SVG / 图片分层、共享弹簧坐标、轻微倾斜、退出归位、减少动态效果；不用于滚动视差 |
+| 9 | 连续布局过渡（Flow-aware content transitions） | [cases/continuous-layout-transitions.md](cases/continuous-layout-transitions.md) | 内容淡入淡出、真实占位伸缩、相邻元素让位、退出与草稿保留、条件间距、嵌套跟随；附独立组件模板 |
 
 > 更多 case 持续补充中。新增 case 请参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -106,6 +96,18 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 ## 场景匹配指南
 
 当用户的需求描述匹配以下关键词时，Agent 应阅读对应 case：
+
+### 内容与周围元素一起连续变化 → 优先 Case 9
+
+- 「按 Motion Case 9 做连续布局过渡」
+- 「内容一边淡入，一边逐渐撑开；收起时淡出并收回空间」
+- 「弹窗外框已经平滑，但折叠内容还是瞬间出现，下面元素瞬移」
+- 「主动变化和被动让位都要有始有终」「间距最后不要突然消失」
+- 「嵌套展开时外层不要拖尾，快速反向与输入草稿也要正确」
+
+**可直接复制：**「按 motion-recipes 的连续布局过渡实现：内容淡入淡出、真实占位伸缩、相邻元素连续让位；保留完整退出和草稿，验证中途反向与嵌套变化。」
+
+这是本 Skill 的效果约定名，不是 Motion API。先读 [Case 9](cases/continuous-layout-transitions.md)，按变化类型选择最小实现；需要组合能力时使用 [组件模板](assets/flow-transition.tsx)。Case 5 解决自然尺寸测量，Case 2 解决内容替换，Case 6 解决离散列表重排；它们单独使用时不必读取 Case 9。
 
 ### layoutId 导航切换 + 内容过渡 → Case 1
 
@@ -140,6 +142,11 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
 - 「如何避免祖先高度变化触发无关的 layout 动画」
 - 「这个问题应该修组件还是修使用层」
 - Segmented Control、Tabs、Filter Pills、单选按钮组中的共享选中指示器
+
+### 单层静态 FAQ / 普通折叠 → 最小开合方案
+
+- 内容仅随展开 / 收起变化，没有异步、嵌套或表单状态：局部 `height: 0 ↔ auto` + opacity 即可。
+- 不为此默认引入 Observer 或整套组合模板；需要完整效果验收时看 Case 9 的最小分支。
 
 ### 测量内容高度并平滑动画 `auto -> auto` → Case 5
 
@@ -198,6 +205,7 @@ const EASE_OUT_QUAD = [0.25, 0.46, 0.45, 0.94] as const;
    - 退出动画：比进入快 20–30%，位移更小
    - 固定高度内容可用 `AnimatePresence mode="wait"` 避免新旧内容重叠
    - keyed 内容互换导致自动高度变化时读 Case 2，使用参与 layout 的容器 + `mode="popLayout"`
+   - 内容、占位、被动兄弟和外框需要共同连续变化时先读 Case 9，按层分配动画责任；不要只动画最外层
    - 同一内容树从一个 `auto` 高度变到另一个 `auto` 高度，且普通 `layout` 效果不足时读 Case 5，测量内层并动画外层数值高度
    - 方向感知：根据索引变化计算方向，传入 `custom` prop
 4. 完成后检查：TypeScript 类型、z-index 层级、是否有重复样式冲突。

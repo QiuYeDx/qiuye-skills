@@ -1,5 +1,7 @@
 # Case 2: AnimatePresence 内容切换与 Popover 高度平滑过渡
 
+> 若目标还包括“内容淡入淡出、局部占位伸缩、下方元素连续让位”，先读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。它统一这些结果的动画归属、条件间距、退出保留与嵌套跟随；仅使用本 case 不代表内部文档流已全部连续。
+
 ## 目标
 
 修复 Popover / Card / Wizard Step 内容切换时，因新旧内容高度不同导致容器高度突然跳变的问题。

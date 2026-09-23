@@ -84,6 +84,7 @@ qiuye-skills/
     └── motion-recipes/
         ├── SKILL.md
         ├── CONTRIBUTING.md
+        ├── assets/flow-transition.tsx
         └── cases/
             ├── layout-id-nav-switch.md
             ├── animate-presence-auto-height-popover.md
@@ -92,7 +93,8 @@ qiuye-skills/
             ├── measured-auto-height-content.md
             ├── list-presence-layout-reorder.md
             ├── container-transform-morph.md
-            └── pointer-layered-parallax.md
+            ├── pointer-layered-parallax.md
+            └── continuous-layout-transitions.md
 ```
 
 ## Skills 一览
@@ -237,8 +239,9 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-
 | 列表增删、Presence 与位置重排 | `cases/list-presence-layout-reorder.md` | AnimatePresence、popLayout、Flex/Grid 批量增删、退出快照与平滑重排 |
 | 容器变形过渡（Container Transform） | `cases/container-transform-morph.md` | 触发器原地扩展成面板、卡片飞向视口中央变浮层、占位 + 视觉克隆、遮罩与焦点管理 |
 | 鼠标驱动的分层 2.5D 视差 | `cases/pointer-layered-parallax.md` | 稳定感应区域、SVG / 图片分层、共享弹簧坐标、轻微倾斜、退出归位与减少动态效果 |
+| 连续布局过渡（Flow-aware content transitions） | `cases/continuous-layout-transitions.md` | 内容淡入淡出、真实占位伸缩、兄弟连续让位、间距与退出保留、嵌套协调；附 React + Motion 模板 |
 
-**触发词：** motion、framer-motion、layoutId、AnimatePresence、nav 切换动效、dynamic height、useMeasure、ResizeObserver、spring animation、列表增删、列表重排、popLayout、退出快照、container transform、容器变形、卡片展开、居中浮层、鼠标视差、分层视差、2.5D、pointer parallax、layered parallax、card tilt、动效案例
+**触发词：** motion、framer-motion、layoutId、AnimatePresence、nav 切换动效、dynamic height、useMeasure、ResizeObserver、spring animation、列表增删、列表重排、popLayout、退出快照、container transform、容器变形、卡片展开、居中浮层、鼠标视差、分层视差、2.5D、pointer parallax、layered parallax、card tilt、连续布局过渡、内容撑开空间、相邻元素连续让位、flow-aware content transitions、动效案例
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill motion-recipes

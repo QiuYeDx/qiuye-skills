@@ -1,5 +1,7 @@
 # Case 6: 列表增删、Presence 与位置重排
 
+> 若目标还包括“内容淡入淡出、局部占位伸缩、下方元素连续让位”，先读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。它统一这些结果的动画归属、条件间距、退出保留与嵌套跟随；仅使用本 case 不代表内部文档流已全部连续。
+
 ## 目标
 
 实现带元素增加、删除和顺序变化的 Motion 列表，使删除项在旧位置退场、新增项在最终位置入场、幸存项只重排一次，并避免首帧跳过、文字拉伸、分批消失和快速切换残留。
@@ -54,9 +56,9 @@
     <motion.li
       key={item.id}
       layout="position"
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
       <Item item={item} />
     </motion.li>
@@ -167,7 +169,7 @@ void controls.start(exitTarget).then(() => onExited(snapshotId));
 
 ---
 
-## 推荐实现模板
+## 进阶实现模板：仅在内置方案未通过视觉验证时使用
 
 ### 1. 类型与参数
 
