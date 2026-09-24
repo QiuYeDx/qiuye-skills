@@ -128,6 +128,16 @@ import { observe, unobserve } from "@qiuyedx/smooth-corners/observer";
 
 For custom framework wrappers, use `computeSmoothCorners` or the inline equivalent from `references/implementation-recipes.md`. Always clean up `ResizeObserver`.
 
+## Nested Contours And Short Controls
+
+When a smooth control sits near a container corner, compare the actual hover surface to both adjacent container edges, then inspect the space along the curves. Equal rectangular padding alone is not proof of uniform contour spacing. For concentric circular corners, outer radius minus inset is a useful starting point; smooth/superellipse curves need rendered review, not an assertion that identical smoothing creates an exact offset curve.
+
+Check final compensated CSS radii against the rendered layout dimensions. Adjacent radii that cannot fit their side can cause all radii to shrink; computed style can still report the specified radii. For example, a 40px-high row cannot retain 30px at both ends of either vertical side. This is a diagnostic example, not a recommended size. See [CSS corner overlap](https://www.w3.org/TR/css-backgrounds-3/#corner-overlap); other shapes also need their applicable constraints checked.
+
+If only the bottom corners must follow an outer shell, keep those corners and reduce the top corners enough to fit; reverse this for top-edge controls. Preserve symmetry when all four corners define the intended shape. A size-aware observer is useful for symmetric resizing, but may reduce the very corners that need to track a surrounding contour; it does not replace per-corner design. Prefer lowering unneeded radii/smoothing before increasing the entire control height.
+
+Apply per-corner overrides in both the normal-radius fallback and the enhanced rule, allowing for library compensation and style precedence. Give background/material and clipping layers the same intended outline. Validate the actual hover/focus surface at short and narrow sizes, including scroll-end focus; do not clip away a focus ring to disguise a mismatch.
+
 ## Tailwind And shadcn Notes
 
 - Avoid combining Tailwind `rounded-*` with `.smooth-corners` on the same element unless the generated class wins intentionally.

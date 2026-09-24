@@ -55,6 +55,12 @@ const insets = await action.evaluate(button => {
 expect(Math.abs(insets.top - insets.right)).toBeLessThanOrEqual(1);
 ```
 
+### 矩形等距还不够
+
+上述断言不检查实际曲线。继续排查 [视觉边距与嵌套轮廓](visual-insets-and-contours.md)：圆角的相邻半径和是否超过所在边长、是否使用补偿半径、是否有分角覆盖或缩放；computed radius 不一定等于最后绘制的半径。真实 hover 后看内外曲线，不用“padding 一致”替代视觉结果。
+
+对于滚动区域，在同一状态记录 viewport 与祖先的 scrollTop、clientHeight、scrollHeight，再用 Home/End 或末项聚焦比较。只有实际 viewport 应滚动时，其他裁切祖先的意外位移也是缺陷。检查滚动条有无出现时内容宽度和高亮末端是否改变。数值和截图应来自同一最终代码。
+
 ### Tooltip 内容利用率
 
 选择只承载可见文本的元素，排除箭头和无障碍副本。若混有隐藏元素，先缩小测量对象，不能把整个组件的所有 Range rect 当成可见文本。

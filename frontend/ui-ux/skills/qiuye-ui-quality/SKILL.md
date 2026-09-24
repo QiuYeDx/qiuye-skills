@@ -5,7 +5,7 @@ description: >-
   and a rendered self-review and repair loop before delivery. Use for UI/UX
   implementation, visual consistency, spacing, information density, responsive
   layouts, and requests to reduce repeated manual design feedback. 适用于界面重写、
-  UI/UX 打磨、视觉一致性、间距与密度优化、交付前自检。Not a prescribed visual style
+  UI/UX 打磨、视觉一致性、间距与密度优化、圆角间隙不匀、hover 贴边、图标视觉间距与交付前自检。Not a prescribed visual style
   or a replacement for domain-specific motion, accessibility, or CSS debugging.
 ---
 
@@ -54,6 +54,12 @@ description: >-
 - 行高亮与分割线一起设计：检查高亮表面的内侧留白，以及紧邻边界是否重复强调；适用条件与过渡方式见 [高亮表面与相邻分割线协同](references/failure-catalog.md#f1-高亮表面与相邻分割线协同)。
 
 在实现相关组件前，阅读 [常见失误与修复](references/failure-catalog.md) 中对应的条目。那里给出故障机理与验收对象，不提供通用像素配方。
+
+### 视觉边距与嵌套轮廓
+
+新建含靠角操作、嵌套表面或滚动浮层的界面时，主动区分内容可见边界、hover 背景、点击热区和外壳轮廓；直边 padding 相等不代表曲线间隙相等。用户说“间距不舒服”“hover 贴边”“角上不匀”时也走这一路径。
+
+按需读取 [视觉边距与嵌套轮廓](references/visual-insets-and-contours.md)：先确定哪两条边界需要协调，再检查圆角实际尺寸、状态背景和滚动占位。移动图标必须同时复验其背景内留白；矮控件的大圆角要排除浏览器缩小半径；滚动末项需验证焦点不会改变原本的等距关系。使用项目数值，不把某次修复的形状、像素或隐藏滚动条当成默认风格。
 
 ### 少量信息的结果反馈
 
