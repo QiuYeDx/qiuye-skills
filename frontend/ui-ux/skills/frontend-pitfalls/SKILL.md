@@ -7,9 +7,11 @@ description: >-
   problems, animation glitches, Tailwind/shadcn UI pitfalls, glassmorphism,
   backdrop-filter/backdrop-blur, stacking context, overflow clipping, opacity
   compositing, mobile header dropdowns, transparent navbars, HUD/tool overlays,
-  or when the user asks for "前端避坑", "避坑 case", "背景模糊失效",
-  "backdrop-filter", "backdrop-blur", "玻璃态", "毛玻璃", "Safari 模糊",
-  "移动端菜单模糊", "透明导航栏", "浮层动画闪烁".
+  Radix/shadcn ScrollArea sizing and positioning, scrollbars that appear after
+  a transition and reflow content, or when the user asks for "前端避坑",
+  "避坑 case", "背景模糊失效", "backdrop-filter", "backdrop-blur", "玻璃态",
+  "毛玻璃", "Safari 模糊", "移动端菜单模糊", "透明导航栏", "浮层动画闪烁",
+  "ScrollArea 滚不动", "滚动条挤占宽度", "滚动条出现内容重排".
 ---
 
 # Frontend Pitfalls — 前端避坑 Case 集合
@@ -30,6 +32,7 @@ description: >-
 | # | Case | 文件 | 关键词 / 适用场景 |
 |---|---|---|---|
 | 1 | backdrop-filter 背景模糊与玻璃态浮层 | [cases/backdrop-filter-glass-blur.md](cases/backdrop-filter-glass-blur.md) | `backdrop-filter`、`backdrop-blur`、玻璃态、毛玻璃、移动端 Header 菜单、透明导航栏、HUD 浮层、Safari 模糊失效、入场后才突然变模糊 |
+| 2 | Radix / shadcn ScrollArea 的定位、尺寸与内容宽度 | [cases/radix-scroll-area-layout.md](cases/radix-scroll-area-layout.md) | `ScrollArea`、内联 `position: relative` 覆盖定位 class、`display: table` 横向撑宽、Viewport 内联 overflow、原生滚动条挤占宽度导致重排、弹窗 / Sheet 内部滚动 |
 
 ## 场景匹配指南
 
@@ -42,6 +45,16 @@ description: >-
 - 「父元素和子浮层都用了 backdrop-blur，子层失效」
 - 「Chrome / Safari / 移动端浏览器的毛玻璃表现不一致」
 - 透明导航栏、移动端菜单、Command Palette、HUD 工具条、搜索浮层、悬浮面板
+
+### Radix / shadcn ScrollArea 的定位、尺寸与内容宽度 → Case 2
+
+- 「弹窗展开完成后，右侧突然出现滚动条，内容跳了一下」
+- 「Windows 上滚动条挤占宽度，Mac 上看不出来」
+- 「用了 ScrollArea 以后滚不动 / 内容被裁掉一截」
+- 「ScrollArea 里横向滚动的截图条把整个面板撑宽了」
+- 「写了 `absolute inset-0` 但 ScrollArea 还是被内容撑高」
+- 「动画期间想禁止滚动，给 Viewport 写 overflow: hidden 不生效」
+- 卡片展开浮层、Sheet、Dialog、Header 下拉目录、侧栏等内部滚动容器
 
 ## 新增 Case 维护约定
 
