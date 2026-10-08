@@ -8,10 +8,12 @@ description: >-
   backdrop-filter/backdrop-blur, stacking context, overflow clipping, opacity
   compositing, mobile header dropdowns, transparent navbars, HUD/tool overlays,
   Radix/shadcn ScrollArea sizing and positioning, scrollbars that appear after
-  a transition and reflow content, or when the user asks for "前端避坑",
+  a transition and reflow content, shadow jumps when a container-transform
+  overlay lands on its card, or when the user asks for "前端避坑",
   "避坑 case", "背景模糊失效", "backdrop-filter", "backdrop-blur", "玻璃态",
   "毛玻璃", "Safari 模糊", "移动端菜单模糊", "透明导航栏", "浮层动画闪烁",
-  "ScrollArea 滚不动", "滚动条挤占宽度", "滚动条出现内容重排".
+  "ScrollArea 滚不动", "滚动条挤占宽度", "滚动条出现内容重排",
+  "阴影突然消失", "收起时阴影跳变", "展开浮层阴影".
 ---
 
 # Frontend Pitfalls — 前端避坑 Case 集合
@@ -33,6 +35,7 @@ description: >-
 |---|---|---|---|
 | 1 | backdrop-filter 背景模糊与玻璃态浮层 | [cases/backdrop-filter-glass-blur.md](cases/backdrop-filter-glass-blur.md) | `backdrop-filter`、`backdrop-blur`、玻璃态、毛玻璃、移动端 Header 菜单、透明导航栏、HUD 浮层、Safari 模糊失效、入场后才突然变模糊 |
 | 2 | Radix / shadcn ScrollArea 的定位、尺寸与内容宽度 | [cases/radix-scroll-area-layout.md](cases/radix-scroll-area-layout.md) | `ScrollArea`、内联 `position: relative` 覆盖定位 class、`display: table` 横向撑宽、Viewport 内联 overflow、原生滚动条挤占宽度导致重排、弹窗 / Sheet 内部滚动 |
+| 3 | 容器变形过渡中的阴影交接 | [cases/morph-shadow-handoff.md](cases/morph-shadow-handoff.md) | 卡片展开浮层 / 灯箱 / FAB → Dialog、收起落地时重阴影突变、展开首帧阴影满强度、共享静止阴影、`--lift` 变量、WAAPI `opacity` 过期帧 |
 
 ## 场景匹配指南
 
@@ -55,6 +58,14 @@ description: >-
 - 「写了 `absolute inset-0` 但 ScrollArea 还是被内容撑高」
 - 「动画期间想禁止滚动，给 Viewport 写 overflow: hidden 不生效」
 - 卡片展开浮层、Sheet、Dialog、Header 下拉目录、侧栏等内部滚动容器
+
+### 容器变形过渡中的阴影交接 → Case 3
+
+- 「卡片展开的浮层收起到最后，重阴影突然变成卡片的轻阴影」
+- 「展开一开始阴影就很重，不是慢慢浮起来的」
+- 「几何动画已经很连续，但落地那一帧还是闪一下」
+- 「柔影层淡出后卸载，最后一帧阴影闪回」
+- 卡片 → 详情浮层、缩略图 → 灯箱、FAB → Dialog、列表项 → 居中面板
 
 ## 新增 Case 维护约定
 
