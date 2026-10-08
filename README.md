@@ -71,7 +71,8 @@ qiuye-skills/
     │   └── cases/
     │       ├── backdrop-filter-glass-blur.md
     │       ├── radix-scroll-area-layout.md
-    │       └── morph-shadow-handoff.md
+    │       ├── morph-shadow-handoff.md
+    │       └── mouse-drag-scroll.md
     ├── qiuye-smooth-scroll/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
@@ -202,15 +203,16 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill geometric-mas
 
 #### `frontend-pitfalls` — 前端避坑 Case 集合
 
-沉淀真实项目中容易被 AI Agent 或开发者误用的 UI/CSS/交互实现坑位，给出稳定结构、排查顺序、推荐模板与验收清单。当前包含 3 个 case：
+沉淀真实项目中容易被 AI Agent 或开发者误用的 UI/CSS/交互实现坑位，给出稳定结构、排查顺序、推荐模板与验收清单。当前包含 4 个 case：
 
 | Case | 文件 | 覆盖主题 |
 |---|---|---|
 | backdrop-filter 背景模糊与玻璃态浮层 | `cases/backdrop-filter-glass-blur.md` | backdrop-blur、glassmorphism、移动端菜单模糊、Safari 兼容、退出动画故障 |
 | Radix / shadcn ScrollArea 的定位、尺寸与内容宽度 | `cases/radix-scroll-area-layout.md` | 内联定位覆盖、`display: table` 横向撑宽、Viewport overflow 覆盖、滚动条挤占宽度导致重排 |
 | 容器变形过渡中的阴影交接 | `cases/morph-shadow-handoff.md` | 展开 / 收起时阴影突变、共享静止阴影、`--lift` 变量驱动悬浮阴影、WAAPI `opacity` 过期帧 |
+| 横向滚动行的鼠标拖拽滚动 | `cases/mouse-drag-scroll.md` | 仅鼠标拖拽、阈值后再捕获指针、拦截拖后 click、暂停与恢复 `scroll-snap`、惯性吸附落点、禁用文本选择与图片拖拽 |
 
-**触发词：** 前端避坑、backdrop-filter、玻璃态、毛玻璃、Safari 模糊、移动端菜单模糊、透明导航栏、ScrollArea 滚不动、滚动条挤占宽度、收起时阴影跳变
+**触发词：** 前端避坑、backdrop-filter、玻璃态、毛玻璃、Safari 模糊、移动端菜单模糊、透明导航栏、ScrollArea 滚不动、滚动条挤占宽度、收起时阴影跳变、鼠标拖拽滚动、拖拽后误触发点击
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill frontend-pitfalls

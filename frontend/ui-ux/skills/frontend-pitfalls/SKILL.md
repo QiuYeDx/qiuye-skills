@@ -9,11 +9,13 @@ description: >-
   compositing, mobile header dropdowns, transparent navbars, HUD/tool overlays,
   Radix/shadcn ScrollArea sizing and positioning, scrollbars that appear after
   a transition and reflow content, shadow jumps when a container-transform
-  overlay lands on its card, or when the user asks for "前端避坑",
+  overlay lands on its card, mouse drag-to-scroll for horizontal carousels
+  and scroll-snap rows, or when the user asks for "前端避坑",
   "避坑 case", "背景模糊失效", "backdrop-filter", "backdrop-blur", "玻璃态",
   "毛玻璃", "Safari 模糊", "移动端菜单模糊", "透明导航栏", "浮层动画闪烁",
   "ScrollArea 滚不动", "滚动条挤占宽度", "滚动条出现内容重排",
-  "阴影突然消失", "收起时阴影跳变", "展开浮层阴影".
+  "阴影突然消失", "收起时阴影跳变", "展开浮层阴影", "鼠标拖拽滚动",
+  "横向滚动鼠标拖不动", "拖拽后误触发点击", "轮播支持鼠标拖动".
 ---
 
 # Frontend Pitfalls — 前端避坑 Case 集合
@@ -36,6 +38,7 @@ description: >-
 | 1 | backdrop-filter 背景模糊与玻璃态浮层 | [cases/backdrop-filter-glass-blur.md](cases/backdrop-filter-glass-blur.md) | `backdrop-filter`、`backdrop-blur`、玻璃态、毛玻璃、移动端 Header 菜单、透明导航栏、HUD 浮层、Safari 模糊失效、入场后才突然变模糊 |
 | 2 | Radix / shadcn ScrollArea 的定位、尺寸与内容宽度 | [cases/radix-scroll-area-layout.md](cases/radix-scroll-area-layout.md) | `ScrollArea`、内联 `position: relative` 覆盖定位 class、`display: table` 横向撑宽、Viewport 内联 overflow、原生滚动条挤占宽度导致重排、弹窗 / Sheet 内部滚动 |
 | 3 | 容器变形过渡中的阴影交接 | [cases/morph-shadow-handoff.md](cases/morph-shadow-handoff.md) | 卡片展开浮层 / 灯箱 / FAB → Dialog、收起落地时重阴影突变、展开首帧阴影满强度、共享静止阴影、`--lift` 变量、WAAPI `opacity` 过期帧 |
+| 4 | 横向滚动行的鼠标拖拽滚动 | [cases/mouse-drag-scroll.md](cases/mouse-drag-scroll.md) | 轮播 / 截图条 / 标签栏的鼠标拖动、拖拽阈值与指针捕获、拖后误点击、`scroll-snap` 拉扯与恢复跳位、惯性落点、禁用文本选择与图片拖拽、仅鼠标生效 |
 
 ## 场景匹配指南
 
@@ -66,6 +69,15 @@ description: >-
 - 「几何动画已经很连续，但落地那一帧还是闪一下」
 - 「柔影层淡出后卸载，最后一帧阴影闪回」
 - 卡片 → 详情浮层、缩略图 → 灯箱、FAB → Dialog、列表项 → 居中面板
+
+### 横向滚动行的鼠标拖拽滚动 → Case 4
+
+- 「横向滚动的区域只有触屏能滑，鼠标很难滚」
+- 「想支持鼠标按住拖动，同时不要选中文字」
+- 「拖动卡片行后松手，卡片被点开了」
+- 「加了拖拽后 scroll-snap 很涩 / 松手后突然跳一下」
+- 「拖拽加上后，行里的卡片点不开了」
+- 首页轮播、作品截图条、横向标签 / Chip 列表、隐藏滚动条的横向列表
 
 ## 新增 Case 维护约定
 
