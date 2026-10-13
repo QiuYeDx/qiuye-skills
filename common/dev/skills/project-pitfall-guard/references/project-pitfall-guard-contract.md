@@ -26,16 +26,7 @@ The project-level `SKILL.md` should require agents to:
 
 ## Detail file shape
 
-Each pitfall detail file should include:
-
-- `Area`
-- `Triggers`
-- `Symptoms`
-- `Root cause`
-- `Do`
-- `Avoid`
-- `Validation`
-- `Related files`
+The generated `references/pitfall-template.md` is the single source for the required sections (Area, Triggers, Symptoms, Root cause, Do, Avoid, Validation, Related files); `add_pitfall.py` creates files in that shape.
 
 ## What belongs here
 
@@ -45,7 +36,7 @@ Each pitfall detail file should include:
 - environment or permission quirks;
 - dirty-data, dirty-design, or dirty-doc cleanup rules;
 - repeated agent mistakes;
-- workflow constraints from `AGENTS.md` or similar files.
+- workflow constraints from `CLAUDE.md`, `AGENTS.md` or similar files.
 
 ## What does not belong here
 
