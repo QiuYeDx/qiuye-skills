@@ -24,7 +24,7 @@ Start by inspecting the target project:
 2. Check whether `components.json` exists and whether QiuYe UI registry aliases can be used.
 3. Check package manager and lockfile version before installing dependencies.
 4. Check whether the user allows dependencies or asks for an inline/no-dependency implementation.
-5. Check whether element dimensions are dynamic or the radius approaches half of the shortest side.
+5. Check whether element dimensions are dynamic or the compensated radius `radius * (1 + smoothing)` can exceed half of the shortest side (at smoothing 0.6 this already happens once radius > ~31% of the short side, e.g. radius 30 needs at least 96px).
 
 Choose the implementation route with this priority:
 
@@ -32,7 +32,7 @@ Choose the implementation route with this priority:
 |---|---|
 | shadcn/ui project that can use QiuYe UI registry | Install `@qiuye-ui/smooth-corners` first |
 | React/Vue/vanilla project, dependencies allowed, not using shadcn registry | Use `@qiuyedx/smooth-corners` |
-| Dynamic element size or large radius near half the short side | Use size-aware compute/observer |
+| Dynamic element size, or `radius * (1 + smoothing)` > half the short side | Use size-aware compute/observer |
 | Dependencies disallowed | Use inline helper + CSS `@supports` |
 | Only global design-token radius needs changing | Prefer theme tokens; do not force this skill |
 
@@ -117,7 +117,7 @@ Use size-aware logic when:
 
 - width/height changes after render,
 - the element is responsive or animated,
-- radius is close to `min(width, height) / 2`,
+- the compensated radius `radius * (1 + smoothing)` exceeds `min(width, height) / 2` (much earlier than `radius` itself reaching half the short side),
 - corners visually collide or become pill-like.
 
 Prefer the package observer for low-volume dynamic elements:
@@ -129,6 +129,8 @@ import { observe, unobserve } from "@qiuyedx/smooth-corners/observer";
 For custom framework wrappers, use `computeSmoothCorners` or the inline equivalent from `references/implementation-recipes.md`. Always clean up `ResizeObserver`.
 
 ## Nested Contours And Short Controls
+
+This section covers only what smoothing changes. The general method for nested contours (content edge vs hover surface vs hit area vs shell) lives in `qiuye-ui-quality`'s `references/visual-insets-and-contours.md` when that skill is installed.
 
 When a smooth control sits near a container corner, compare the actual hover surface to both adjacent container edges, then inspect the space along the curves. Equal rectangular padding alone is not proof of uniform contour spacing. For concentric circular corners, outer radius minus inset is a useful starting point; smooth/superellipse curves need rendered review, not an assertion that identical smoothing creates an exact offset curve.
 

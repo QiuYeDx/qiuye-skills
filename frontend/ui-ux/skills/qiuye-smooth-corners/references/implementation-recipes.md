@@ -251,7 +251,10 @@ import { smoothCorners } from "@qiuyedx/smooth-corners";
 
 const el = document.querySelector<HTMLElement>(".smooth-corners");
 if (el) {
-  Object.assign(el.style, smoothCorners(28, 0.7));
+  // Custom properties must go through setProperty; Object.assign(el.style, ...) silently ignores "--*" keys.
+  for (const [name, value] of Object.entries(smoothCorners(28, 0.7))) {
+    el.style.setProperty(name, value);
+  }
 }
 ```
 
