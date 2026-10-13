@@ -14,6 +14,7 @@
 
 ```text
 qiuye-skills/
+├── dev/                            # 维护资料：spec-driven-ai-coding、project-pitfall-guard 的测试与验证，不随安装分发
 ├── common/dev/skills/
 │   ├── spec-driven-ai-coding/
 │   │   ├── SKILL.md
@@ -44,10 +45,7 @@ qiuye-skills/
 │   │   │   ├── check_spec.py
 │   │   │   ├── render_overall.py
 │   │   │   └── spec_core.py
-│   │   ├── tests/
-│   │   ├── examples/
-│   │   ├── evals/
-│   │   └── validation/
+│   │   └── examples/
 │   └── project-pitfall-guard/
 │       ├── SKILL.md
 │       ├── agents/openai.yaml
@@ -59,8 +57,9 @@ qiuye-skills/
     │   ├── agents/openai.yaml
     │   ├── references/
     │   └── evals/scenarios.md
-    ├── edge-gradient-mask/
-    │   └── SKILL.md
+    ├── qiuye-edge-gradient-mask/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml
     ├── qiuye-soft-text-backdrop/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
@@ -84,10 +83,16 @@ qiuye-skills/
     │   └── references/
     │       ├── technique-selection.md
     │       ├── implementation-recipes.md
+    │       ├── staggered-grid-transitions.md
     │       └── validation.md
+    ├── qiuye-smooth-corners/
+    │   ├── SKILL.md
+    │   ├── agents/openai.yaml
+    │   └── references/implementation-recipes.md
     └── motion-recipes/
         ├── SKILL.md
         ├── CONTRIBUTING.md
+        ├── agents/openai.yaml
         ├── assets/flow-transition.tsx
         └── cases/
             ├── layout-id-nav-switch.md
@@ -109,7 +114,7 @@ qiuye-skills/
 
 按规模、风险和不确定性选择流程：S 轻量开发与验证；M 使用 `requirements / design / tasks` 与 `spec.json` 批次元数据；L 采用滚动规划，仅细化当前可交付增量。`common` 和多 Agent 并行按需采用，协作边界按实际写集协调。区分 bugfix 与需求变更，沿用明确授权自主执行。
 
-内置需求与验收追踪、前端 / 后端质量门、真实验证证据和可恢复交接。任务状态以 `tasks.md` 为单一来源，总览自动生成。附 10 套模板、测试与示例；`init_spec.py` 创建全新骨架，`check_spec.py` 按 draft / ready / done 检查结构、覆盖、批准及证据是否过期，`render_overall.py` 生成只读总览，`spec_core.py` 提供共用校验逻辑。脚本需要 Python 3.10+，不执行文档中的测试命令，也不能证明业务正确性。
+内置需求与验收追踪、前端 / 后端质量门、真实验证证据和可恢复交接。任务状态以 `tasks.md` 为单一来源，总览自动生成。附 10 套模板与示例（回归测试与评估场景在仓库 `dev/spec-driven-ai-coding/`，不随安装分发）；`init_spec.py` 创建全新骨架，`check_spec.py` 按 draft / ready / done 检查结构、覆盖、批准及证据是否过期，`render_overall.py` 生成只读总览，`spec_core.py` 提供共用校验逻辑。脚本需要 Python 3.10+，不执行文档中的测试命令，也不能证明业务正确性。
 
 替代原 `large-feature-ai-coding`；存量 v1 文档和旧格式（`*_final_design.md` / `*_execution_plan.md`）可继续沿用。v2 检查器仅支持含 `spec.json` 的新版格式，需要迁移时参见 [迁移说明](common/dev/skills/spec-driven-ai-coding/references/migration.md)。
 
@@ -125,9 +130,9 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill spec-driven-a
 
 #### `project-pitfall-guard` — 项目级踩坑防护
 
-元技能（Meta-skill）：在当前项目中建立并维护项目级踩坑防护 Skill，将踩坑经验沉淀为可跨会话复用的项目记忆。自动为项目生成 `.agents/skills/<project>-pitfall-guard/` 结构，含索引、详情文件与添加脚本。
+元技能（Meta-skill）：在当前项目中建立并维护项目级踩坑防护 Skill，将踩坑经验沉淀为可跨会话复用的项目记忆。按宿主生成 `<project>-pitfall-guard/`（Claude Code 放 `.claude/skills/`，Codex 等放 `.agents/skills/`，可用 `--skills-dir` 指定），含索引、详情文件与添加脚本；`--force` 只刷新脚本与说明，不覆盖已有记录。只在明确要求记录踩坑或同类问题反复出现时触发，不随普通编码任务启动。
 
-**触发词：** 踩坑、避坑、pitfall、gotcha、lessons learned、project memory、repeated mistakes
+**触发词：** 踩坑、避坑、pitfall、gotcha、lessons learned、repeated mistakes
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill project-pitfall-guard
@@ -165,7 +170,7 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-soft-te
 
 #### `qiuye-edge-gradient-mask` — 边缘渐变淡出遮罩
 
-为可滚动区域、视口、卡片等元素添加边缘渐变淡出遮罩（soft fade），提供 5 套开箱即用模板，覆盖页面固定边缘、滚动感知显隐、水平无限滚动、装饰性渐变、CSS mask-image 等场景。
+为可滚动区域、视口、卡片等元素添加边缘渐变淡出遮罩（soft fade），提供 5 套开箱即用模板，覆盖页面固定边缘、滚动感知显隐（overlay 或直接给滚动容器加 mask）、水平无限滚动、装饰性渐变、图案边缘淡出等场景。
 
 **触发词：** edge fade、gradient mask、scroll fade、soft edge、overflow fade、mask-image gradient
 
@@ -193,7 +198,7 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-
 
 面向生产实现的几何遮罩 / 揭幕转场工作流。先明确 source、target、形状内外关系和 DOM 提交点，再在 transform cover、clip-path、CSS alpha mask、View Transition API、SVG 与 Canvas/WebGL 中正确选型；同时覆盖任意原点半径计算、首尾帧、并发取消、resize、reduced motion、浏览器回退和逐帧视觉验收。
 
-**触发词：** reveal transition、geometric mask、clip-path reveal、radial wipe、aperture reveal、view transition reveal、几何遮罩、揭幕、遮罩过渡、图形过渡、页面转场遮罩
+**触发词：** reveal transition、geometric mask、clip-path reveal、radial wipe、tile/grid/mosaic reveal、matrix transition、source exit、几何遮罩、揭幕、遮罩过渡、圆形揭幕、矩阵转场、网格揭示、源视图退场
 
 ```bash
 npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill geometric-mask-transition
@@ -234,7 +239,7 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill qiuye-smooth-
 
 #### `motion-recipes` — Motion 动效案例集
 
-经过验证的 Motion (framer-motion) 动效实现方案与最佳实践，每个 case 包含完整模板代码、常见坑位修复与验收清单。当前包含 8 个 case：
+经过验证的 Motion (framer-motion) 动效实现方案与最佳实践，每个 case 包含完整模板代码、常见坑位修复与验收清单。当前包含 9 个 case：
 
 | Case | 文件 | 覆盖主题 |
 |---|---|---|
@@ -268,10 +273,10 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git
 
 ```bash
 # 安装 frontend/ui-ux 下的所有 skills
-npx skills add https://github.com/qiuyedx/qiuye-skills/-/tree/master/frontend/ui-ux/skills
+npx skills add https://github.com/qiuyedx/qiuye-skills/tree/main/frontend/ui-ux/skills
 
 # 安装 common/dev 下的所有 skills
-npx skills add https://github.com/qiuyedx/qiuye-skills/-/tree/master/common/dev/skills
+npx skills add https://github.com/qiuyedx/qiuye-skills/tree/main/common/dev/skills
 ```
 
 ### 查看可用 Skills 列表
@@ -294,3 +299,11 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill <skill-name>
 - `SKILL.md` 应提供最小可运行示例与边界说明
 - 辅助文档建议按 `references`、`cases`、`scripts` 拆分，便于检索与维护
 - 含多个 case 的技能（如 `motion-recipes`、`frontend-pitfalls`）遵循索引 + `cases/` 详情文件模式
+- 技能目录名与 `SKILL.md` 的 `name` 保持一致
+- `description` 只写“做什么 + 何时用 + 不用于什么”，控制在 1024 字符以内；口语化触发短语放进正文的场景匹配表，不在 description 中堆叠
+- 测试、评估、发布记录等维护资料不放进技能目录，避免随安装分发
+
+## 其他目录
+
+- `docs/开发设计文档/`：技能的设计文档、执行计划与审查 / 修复记录，不参与安装
+- `dev/`：技能的回归测试、评估场景与验证日志（`spec-driven-ai-coding`、`project-pitfall-guard`），不含 `SKILL.md`，不参与安装

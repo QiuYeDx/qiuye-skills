@@ -1,5 +1,7 @@
 # Smooth Corners Skill 执行计划
 
+> 2026-10-13：Skill 目录已由 `frontend/ui-ux/skills/smooth-corners/` 更名为 `frontend/ui-ux/skills/qiuye-smooth-corners/`，与 `name` 对齐；下文保留原始路径作为历史记录。
+
 创建日期：2026-07-06
 更新日期：2026-07-06
 
