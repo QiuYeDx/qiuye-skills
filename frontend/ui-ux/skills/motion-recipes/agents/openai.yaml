@@ -1,0 +1,4 @@
+interface:
+  display_name: "Motion 动效案例集"
+  short_description: "Motion 布局动画、auto-height、列表重排与容器变形的实现案例"
+  default_prompt: "Use $motion-recipes to implement or fix this Motion animation."

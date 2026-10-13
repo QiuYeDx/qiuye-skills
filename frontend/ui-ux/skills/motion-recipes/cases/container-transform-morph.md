@@ -100,12 +100,12 @@ type OverlayPhase = "closed" | "opening" | "open" | "closing";
 
 关闭回程的共享元素处理：详情侧**注销 `layoutId`**（渲染普通元素 + `invisible` 占位保尺寸），同名 `layoutId` 接力棒交回卡片侧，Motion 自动迁回，无需手写回程。
 
-### 6. 环境层：遮罩 portal + 独立柔影 + z-index 阶梯
+### 6. 环境层：遮罩 portal + 阴影交接 + z-index 阶梯
 
 - 遮罩 `createPortal` 到 `document.body`，避免被祖先 `overflow` / 层叠上下文裁剪
 - `backdrop-filter` 不直接交给 Motion，动画一个 CSS 变量再让 `backdropFilter` 引用它（兼容性更稳）
-- 阴影不用容器 `box-shadow`，单独一层 `bg-black/20 blur-xl` 的柔影 div 跟随同一矩形飞行（重绘开销低、可独立控制透明度时间线）
-- z-index 阶梯：非激活卡片 10 < 遮罩 60 < 柔影 64 < 激活浮层 65；定位锚加 `isolate`
+- 阴影放在视觉克隆自身的 `box-shadow` 上：第一层是与卡片共用的静止阴影变量，第二层悬浮阴影的透明度乘以 `--lift`（0 → 1 → 0）。`--lift` 用比几何更短的 tween，收起时先于落地归零。**不要**另建一层 `blur` 柔影 div 再用 `opacity` 淡出：WAAPI 的过期帧会让它在卸载前后闪一下，落地时阴影也会跳变。完整说明与模板见 [frontend-pitfalls Case 3：容器变形过渡中的阴影交接](../../frontend-pitfalls/cases/morph-shadow-handoff.md)
+- z-index 阶梯：非激活卡片 10 < 遮罩 60 < 激活浮层 65；定位锚加 `isolate`
 
 ---
 
@@ -161,7 +161,7 @@ const CONTENT_EASE = [0.23, 1, 0.32, 1] as const;
         delay: isOpen ? 0.08 : 0,
         ease: CONTENT_EASE,
       }}
-      inert={!isInteractive}
+      inert={!isInteractive} // React 19 才把 boolean inert 传给 DOM；React 18 需写 inert={isInteractive ? undefined : ""}
       aria-hidden={!isInteractive}>
       {panelContent}
     </motion.div>
@@ -202,8 +202,22 @@ const CONTENT_EASE = [0.23, 1, 0.32, 1] as const;
 
 ### 策略 B：矩形迁移（占位 + 克隆飞行）
 
+```css
+/* 克隆在静止态就是卡片外观，因此阴影只写在克隆上：
+   第一层为卡片静止阴影，第二层为受 --lift 控制的悬浮阴影。
+   CardVisual / DetailVisual 内部不要再写阴影，否则会叠出两层。 */
+.morph-sheet {
+  --rest-shadow: 0 4px 20px -12px color-mix(in oklab, var(--foreground) 14%, transparent);
+  --lift: 0;
+  box-shadow:
+    var(--rest-shadow),
+    0 40px 100px -40px rgb(0 0 0 / calc(0.5 * var(--lift)));
+}
+```
+
 ```tsx
 const CARD_TRANSITION = { type: "spring" as const, duration: 0.48, bounce: 0 };
+const LIFT_EASE = [0.22, 1, 0.36, 1] as const;
 
 // 终点矩形：居中 + 安全边距 + 尺寸 clamp + 内容高度感知
 function readCenteredPanelRect(contentHeight = 0) {
@@ -239,32 +253,31 @@ function readCenteredPanelRect(contentHeight = 0) {
           </button>
 
           {visualRect ? (
-            <>
-              {/* ② 柔影层：独立软阴影，同步飞行 */}
+            /* ② 视觉层：被动画的克隆；阴影在自身 box-shadow 上，由 --lift 交接 */
+            <motion.div
+              className={cn("morph-sheet absolute rounded-2xl", active ? "pointer-events-auto" : "pointer-events-none")}
+              style={{ zIndex: active ? 65 : 10 }}
+              initial={false}
+              animate={{
+                ...visualRect,
+                "--lift": active && overlayPhase && overlayPhase !== "closing" ? 1 : 0,
+              }}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : {
+                      ...CARD_TRANSITION,
+                      // 独立且更短的 tween：收起时先于几何落地归零，卡片静止阴影无缝接手
+                      "--lift": { duration: overlayPhase === "closing" ? 0.32 : 0.45, ease: LIFT_EASE },
+                    }
+              }>
+              <CardVisual item={item} index={index}
+                fadeBody={Boolean(active && overlayPhase && overlayPhase !== "closing")} />
               {active && overlayPhase ? (
-                <motion.div aria-hidden="true"
-                  className="pointer-events-none absolute rounded-2xl bg-black/20 blur-xl"
-                  style={{ zIndex: 64 }}
-                  initial={{ opacity: 0 }}
-                  animate={{ ...visualRect, opacity: overlayPhase === "closing" ? 0 : 1 }}
-                  transition={CARD_TRANSITION} />
+                <DetailVisual item={item} index={index} phase={overlayPhase}
+                  onClose={closeDetails} onContentHeightChange={setContentHeight} />
               ) : null}
-
-              {/* ③ 视觉层：被动画的克隆 */}
-              <motion.div
-                className={cn("absolute", active ? "pointer-events-auto" : "pointer-events-none")}
-                style={{ zIndex: active ? 65 : 10 }}
-                initial={false}
-                animate={visualRect}
-                transition={shouldReduceMotion ? { duration: 0 } : CARD_TRANSITION}>
-                <CardVisual item={item} index={index}
-                  fadeBody={Boolean(active && overlayPhase && overlayPhase !== "closing")} />
-                {active && overlayPhase ? (
-                  <DetailVisual item={item} index={index} phase={overlayPhase}
-                    onClose={closeDetails} onContentHeightChange={setContentHeight} />
-                ) : null}
-              </motion.div>
-            </>
+            </motion.div>
           ) : null}
         </li>
       );
@@ -272,7 +285,7 @@ function readCenteredPanelRect(contentHeight = 0) {
   </ol>
 </LayoutGroup>
 
-{/* ④ 遮罩层：portal 到 body，CSS 变量动画 backdrop-filter */}
+{/* ③ 遮罩层：portal 到 body，CSS 变量动画 backdrop-filter */}
 {overlayMounted && createPortal(
   <motion.div aria-hidden="true"
     className="fixed inset-0 bg-black/40"
@@ -338,13 +351,13 @@ function readCenteredPanelRect(contentHeight = 0) {
 ### Step 5: 补环境层与可访问性
 
 - 遮罩 portal + CSS 变量 backdrop-filter + 点击关闭
-- 柔影层同步矩形
+- 阴影交接：克隆自身 `box-shadow` = 共享静止阴影 + `--lift` 悬浮阴影（见 frontend-pitfalls Case 3）
 - Escape 关闭、focus trap、焦点还原 `preventScroll`、滚动锁定（拦截 wheel/touchmove，放行浮层内部）
 - `useReducedMotion` 全链路归零时长
 
 ### Step 6: 逐帧验证
 
-双向过渡各采样首帧（约 16ms）、中间态（80–300ms）、结束帧，检查容器几何、共享元素、旧 / 新内容、遮罩与阴影。
+双向过渡各采样首帧（约 16ms）、中间态（80–300ms）、结束帧，检查容器几何、共享元素、旧 / 新内容、遮罩与阴影；收起最后一帧与卡片恢复后的 computed `box-shadow` 应逐值一致。
 
 策略 A 额外检查：hover 后点击展开；关闭后指针停在触发器最终位置；过渡中移入 / 移出。浅色、深色下都检查触发器局部底色与外壳描边（见坑 10），不要只截图静止终态。
 
@@ -457,6 +470,7 @@ function readCenteredPanelRect(contentHeight = 0) {
 - [ ] Escape 可关闭；关闭后焦点回到触发器且页面不跳动
 - [ ] 浮层打开时背景不可滚动，浮层内部可滚动
 - [ ] `useReducedMotion` 下直接切换状态，功能流程完整
+- [ ] 阴影交接无跳变：展开首帧不是满强度重阴影，收起落地帧与卡片静止阴影一致，无闪烁
 - [ ] z-index 阶梯正确：遮罩在飞行元素之下、页面内容之上
 - [ ] TypeScript、lint 通过
 
@@ -470,6 +484,6 @@ function readCenteredPanelRect(contentHeight = 0) {
 - 采用[策略 A 原地扩展 / 策略 B 矩形迁移]：容器几何由数值驱动的 spring 完成，无缩放失真。
 - [策略 B] 占位按钮保持布局与无障碍语义，视觉克隆负责飞行；关闭时重测触发器矩形作为返回目标。
 - 共享元素（标题 / 徽章）通过 layoutId + layoutCrossfade={false} 在两端连续迁移；其余内容错峰淡入淡出。
-- 遮罩经 portal 渲染并以 CSS 变量动画 backdrop-filter；柔影层与容器同步飞行。
+- 遮罩经 portal 渲染并以 CSS 变量动画 backdrop-filter；阴影为共享静止阴影 + `--lift` 悬浮阴影，落地前归零。
 - 已覆盖焦点管理、Escape / 遮罩关闭、滚动锁定与 reduced motion。
 ```

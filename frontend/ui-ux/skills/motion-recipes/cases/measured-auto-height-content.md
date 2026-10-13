@@ -1,6 +1,6 @@
 # Case 5: 测量内容高度并平滑动画 `auto -> auto`
 
-> 若目标还包括“内容淡入淡出、局部占位伸缩、下方元素连续让位”，先读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。它统一这些结果的动画归属、条件间距、退出保留与嵌套跟随；仅使用本 case 不代表内部文档流已全部连续。
+> 本 case 只负责同一内容树的自然高度测量与数值高度动画，单独使用即可。若同一处还要求内容淡入淡出、下方兄弟连续让位、条件间距或嵌套展开，改读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。
 
 ## 目标
 
@@ -21,7 +21,7 @@ Motion 可以直接处理 `0 -> auto`，但不能可靠地在两个未知的 `au
 - 「需要用 `useMeasure` / `ResizeObserver` 动画 dynamic height」
 - 「Motion 怎么做 `auto -> auto` 高度动画」
 
-典型 UI：设置卡片、Family Drawer、FAQ 详情、表单帮助区、可变文案按钮附近的说明面板、异步预览、筛选摘要、内联错误区。
+典型 UI：设置卡片、Family Drawer、内容会继续变化的 FAQ 详情（单层静态折叠不需要本 case）、表单帮助区、可变文案按钮附近的说明面板、异步预览、筛选摘要、内联错误区。
 
 以下场景优先使用其他方案：
 
@@ -147,9 +147,14 @@ export function AnimatedAutoHeight({
 
 `box-content` 让测得的内层高度对应外层 content box；即使调用方把 border 放在动画层，也不会因全局 `border-box` 少算边框宽度。
 
+方案 A 的两个限制，命中任一条时改用方案 B：
+
+- `useMeasure` 初始 `bounds.height` 为 `0`，无法区分“尚未测量”和“内容真实高度为 0”；内容可能整体变空时不要依赖 `> 0` 判断。
+- `useMeasure` 基于 `getBoundingClientRect()`，结果包含祖先 `transform`。放在带缩放入场的 Dialog / Popover（如 shadcn 的 `zoom-in-95`）里时，首次测量只有约 95%，且之后 transform 变化不会触发 ResizeObserver，内容会被裁掉一截。
+
 ### 方案 B：不增加依赖，使用原生 `ResizeObserver`
 
-用 `null` 表示首次测量尚未发生，因此真实的 `0px` 也可以被正确处理。
+用 `null` 表示首次测量尚未发生，因此真实的 `0px` 也可以被正确处理。测量读取布局高度，不受祖先 `transform` 缩放影响。
 
 ```tsx
 "use client";
@@ -166,7 +171,10 @@ function useElementHeight<T extends HTMLElement>() {
     if (!element || typeof ResizeObserver === "undefined") return;
 
     const update = () => {
-      const nextHeight = element.getBoundingClientRect().height;
+      // getBoundingClientRect 保留小数但包含祖先 transform；offsetHeight 取整但不受 transform 影响。
+      const rectHeight = element.getBoundingClientRect().height;
+      const nextHeight =
+        Math.abs(rectHeight - element.offsetHeight) < 1 ? rectHeight : element.offsetHeight;
       setHeight((currentHeight) =>
         currentHeight !== null && Math.abs(currentHeight - nextHeight) < 0.5
           ? currentHeight

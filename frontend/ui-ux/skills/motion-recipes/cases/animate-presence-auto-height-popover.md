@@ -1,6 +1,8 @@
 # Case 2: AnimatePresence 内容切换与 Popover 高度平滑过渡
 
-> 若目标还包括“内容淡入淡出、局部占位伸缩、下方元素连续让位”，先读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。它统一这些结果的动画归属、条件间距、退出保留与嵌套跟随；仅使用本 case 不代表内部文档流已全部连续。
+> 本 case 只负责 keyed 内容互换时容器高度的平滑过渡，单独使用即可。若同一处还要求下方兄弟元素连续让位、条件间距或嵌套展开，改读 [Case 9：连续布局过渡](continuous-layout-transitions.md)。
+>
+> 本 case 的 `layout` 基于 transform 投影：高度变化较小、容器内主要是短文本时观感可接受；变化幅度大、文字较多或出现拉伸 / 换行抖动时，改用 Case 9 的真实高度方案（`FlowSwap`）。
 
 ## 目标
 

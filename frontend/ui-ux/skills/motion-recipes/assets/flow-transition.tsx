@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Case 9 — Continuous flow transitions / 连续布局过渡.
  *
@@ -11,7 +13,6 @@
  */
 import {
   Children,
-  forwardRef,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -19,6 +20,7 @@ import {
   useSyncExternalStore,
   type Key,
   type ReactNode,
+  type Ref,
 } from 'react';
 import { AnimatePresence, motion, usePresence } from 'motion/react';
 
@@ -38,6 +40,26 @@ const subscribeReducedMotion = (notify: () => void) => {
   return () => media.removeEventListener('change', notify);
 };
 const useClientLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+/**
+ * Layout height, unaffected by ancestor transforms such as a dialog's zoom-in.
+ * getBoundingClientRect keeps subpixels but includes transforms; offsetHeight is
+ * rounded but untransformed. ResizeObserver does not fire on transform changes,
+ * so a scaled first measurement would otherwise stick.
+ */
+function layoutHeight(element: HTMLElement) {
+  const rect = element.getBoundingClientRect().height;
+  const layout = element.offsetHeight;
+  return Math.abs(rect - layout) < 1 ? rect : layout;
+}
+
+const FLOW_SETTLED = 'flowsettled';
+function clearFlowAnimating(element: HTMLElement) {
+  if (element.dataset.flowAnimating === undefined) return;
+  delete element.dataset.flowAnimating;
+  // Removing an attribute does not trigger ResizeObserver; let ancestors re-read `following`.
+  element.dispatchEvent(new Event(FLOW_SETTLED, { bubbles: true }));
+}
 
 /** Reacts to preference changes while mounted, including mid-transition changes. */
 export function useReducedMotionPreference() {
@@ -61,7 +83,7 @@ export function useNaturalHeight() {
     const element = ref.current;
     if (!element) return;
     const measure = () => setSize(previous => {
-      const height = element.getBoundingClientRect().height;
+      const height = layoutHeight(element);
       const following = hasMovingFlow(element);
       return previous !== null && Math.abs(previous.height - height) < 0.1
         && previous.following === following ? previous : { height, following };
@@ -69,7 +91,11 @@ export function useNaturalHeight() {
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
-    return () => observer.disconnect();
+    element.addEventListener(FLOW_SETTLED, measure);
+    return () => {
+      observer.disconnect();
+      element.removeEventListener(FLOW_SETTLED, measure);
+    };
   }, []);
 
   // null means not measured; an actual 0 is a valid measurement.
@@ -111,17 +137,17 @@ export function FlowRegion({
   const follow = open && following && !visibility.moving;
   const target = open ? height ?? (enterFromZero ? 0 : 'auto') : 0;
   const latestTarget = useRef(target);
-  latestTarget.current = target;
+  useClientLayoutEffect(() => { latestTarget.current = target; }, [target]);
 
   // Mark before ResizeObserver runs. Re-springing every child frame creates lag.
   useClientLayoutEffect(() => {
     const element = outer.current;
     if (!element) return;
     if (!reduce && !follow && typeof target === 'number'
-      && Math.abs(element.getBoundingClientRect().height - target) > 0.1) {
+      && Math.abs(layoutHeight(element) - target) > 0.5) {
       element.dataset.flowAnimating = 'true';
     } else {
-      delete element.dataset.flowAnimating;
+      clearFlowAnimating(element);
     }
   }, [target, reduce, follow]);
 
@@ -147,8 +173,8 @@ export function FlowRegion({
           completionFrame.current = null;
           if (!outer.current || completedTarget !== latestTarget.current) return;
           if (typeof completedTarget === 'number'
-            && Math.abs(outer.current.getBoundingClientRect().height - completedTarget) > 0.5) return;
-          delete outer.current.dataset.flowAnimating;
+            && Math.abs(layoutHeight(outer.current) - completedTarget) > 0.5) return;
+          clearFlowAnimating(outer.current);
           setVisibility(previous => previous.moving ? { ...previous, moving: false } : previous);
           onHeightComplete?.();
         });
@@ -173,37 +199,40 @@ export function FlowRegion({
 }
 
 // popLayout needs a ref to the actual DOM child, not an intervening component.
-const FlowStage = forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
-  function FlowStage({ children, className }, ref) {
-    const [present, safeToRemove] = usePresence();
-    const reduce = useReducedMotionPreference();
-    return (
-      <motion.div
-        ref={ref}
-        className={className}
-        style={{ minWidth: 0, transition: 'none' }}
-        data-flow-exiting={present ? undefined : 'true'}
-        inert={!present}
-        aria-hidden={present ? undefined : true}
-        initial={{ opacity: 0, y: reduce ? 0 : 4 }}
-        animate={present ? 'present' : 'exiting'}
-        variants={{
-          present: { opacity: reduce ? [1, 1] : 1, y: reduce ? [0, 0] : 0 },
-          exiting: { opacity: reduce ? [0, 0] : 0, y: reduce ? [0, 0] : -3,
-            transition: { ...flowContentTransition, duration: reduce ? 0 : 0.16 } },
-        }}
-        transition={reduce ? { duration: 0 } : flowContentTransition}
-        // Own the presence completion so a live preference change can retarget
-        // an exit already in progress, rather than waiting for its old tween.
-        onAnimationComplete={definition => {
-          if (definition === 'exiting' && !present) safeToRemove?.();
-        }}
-      >
-        {children}
-      </motion.div>
-    );
-  },
-);
+// React 19 passes `ref` as an ordinary prop, so no forwardRef is needed.
+function FlowStage({ children, className, ref }: {
+  children: ReactNode;
+  className?: string;
+  ref?: Ref<HTMLDivElement>;
+}) {
+  const [present, safeToRemove] = usePresence();
+  const reduce = useReducedMotionPreference();
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={{ minWidth: 0, transition: 'none' }}
+      data-flow-exiting={present ? undefined : 'true'}
+      inert={!present}
+      aria-hidden={present ? undefined : true}
+      initial={{ opacity: 0, y: reduce ? 0 : 4 }}
+      animate={present ? 'present' : 'exiting'}
+      variants={{
+        present: { opacity: reduce ? [1, 1] : 1, y: reduce ? [0, 0] : 0 },
+        exiting: { opacity: reduce ? [0, 0] : 0, y: reduce ? [0, 0] : -3,
+          transition: { ...flowContentTransition, duration: reduce ? 0 : 0.16 } },
+      }}
+      transition={reduce ? { duration: 0 } : flowContentTransition}
+      // Own the presence completion so a live preference change can retarget
+      // an exit already in progress, rather than waiting for its old tween.
+      onAnimationComplete={definition => {
+        if (definition === 'exiting' && !present) safeToRemove?.();
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export interface FlowSwapProps {
   transitionKey: Key;
@@ -224,12 +253,13 @@ export function FlowSwap({
 }: FlowSwapProps) {
   const hasContent = Children.toArray(children).some(child => child !== '');
   const currentContent = useRef(hasContent);
-  currentContent.current = hasContent;
+  useClientLayoutEffect(() => { currentContent.current = hasContent; }, [hasContent]);
   const [retained, setRetained] = useState(hasContent);
   const [heightDone, setHeightDone] = useState(false);
   const [exitDone, setExitDone] = useState(false);
-  const mounted = useRef(false);
-  useEffect(() => { mounted.current = true; }, []);
+  // State, not a ref read during render: initial-mount content must not animate in.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
     if (hasContent) {
       setRetained(true);
@@ -245,7 +275,7 @@ export function FlowSwap({
   if (!hasContent && !retained) return null;
   const content = (
     <AnimatePresence
-      initial={mounted.current}
+      initial={mounted}
       mode="popLayout"
       onExitComplete={() => { if (!currentContent.current) setExitDone(true); }}
     >
@@ -257,7 +287,7 @@ export function FlowSwap({
     <FlowRegion
       className={className}
       open={hasContent}
-      enterFromZero={mounted.current && !retained}
+      enterFromZero={mounted && !retained}
       onHeightComplete={() => { if (!currentContent.current) setHeightDone(true); }}
     >
       {/* This relative natural box is popLayout's containing block. */}
