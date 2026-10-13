@@ -2,7 +2,7 @@
 
 按规模选择文档量，按风险决定确认与验证强度，按证据判断完成。
 
-这是 `QiuYeDx/qiuye-skills/common/dev/skills/spec-driven-ai-coding` 的完整重写包，基于审计时的提交 `11ce270ed74c86027334f7aae01805912645e99b`。包含 Skill 指令、参考规范、模板、脚本、测试、示例与评估场景；不是只改了 SKILL.md 的补丁。
+v2 是对 v1（原 `large-feature-ai-coding` 流程）的完整重写，包含 Skill 指令、参考规范、模板、脚本与示例。维护用的测试、评估场景与验证日志位于仓库 [`dev/spec-driven-ai-coding/`](https://github.com/qiuyedx/qiuye-skills/tree/main/dev/spec-driven-ai-coding)，不随 Skill 安装。
 
 ## 和旧版最关键的区别
 
@@ -30,18 +30,15 @@ S 可用几行记录；M/L 纳入已有 design/tasks/record，模板提示同步
 
 ## 安装
 
-解压后得到一个名为 `spec-driven-ai-coding/` 的目录。
+```bash
+npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill spec-driven-ai-coding
+```
 
-**替换自己的 Skills 仓库：** 将整个目录放到 `qiuye-skills/common/dev/skills/spec-driven-ai-coding/`。先备份/提交旧目录和未提交改动，再替换；不要把新 SKILL.md 与旧脚本混装。
-
-**Codex 项目内安装：** 放入目标项目 `.agents/skills/spec-driven-ai-coding/`；用户级可放入 `~/.agents/skills/spec-driven-ai-coding/`。避免同名新旧版本同时被扫描。安装目录说明依据见 SOURCES.md；其他宿主按其 Skill 安装规则使用。
-
-没有改动远程 GitHub。远程安装命令在你提交新版之前仍会取得仓库当前版本，不会自动取得本压缩包。
-完整替换与旧项目兼容见 [migration](references/migration.md)。仓库根 README 的同步建议见 [integration-notes](integration-notes.md)。
+手动安装时把整个目录放到宿主的 Skill 目录：Claude Code 为 `.claude/skills/`（用户级 `~/.claude/skills/`），Codex 为 `.agents/skills/`（用户级 `~/.agents/skills/`）。升级时整体替换目录，不要把新 SKILL.md 与旧脚本混装，也不要让新旧同名版本同时处于扫描路径。旧项目兼容见 [migration](references/migration.md)。
 
 ## 怎么开始用
 
-在支持 `$skill` 调用的 Coding Agent 中：
+在 Coding Agent 中显式调用（Codex 写 `$spec-driven-ai-coding`，Claude Code 写 `/spec-driven-ai-coding`）：
 
 ```text
 $spec-driven-ai-coding
@@ -98,7 +95,7 @@ python3 scripts/check_spec.py /path/to/spec --stage ready --check-overall
 ```
 
 脚手架保留待填的内容，因此全新骨架预期能过 draft、不能过 ready。**ready 通过不是批准动作。** 批准信息须来自真实用户/项目授权；脚本没有“自动批准”命令。
-Windows 可用已安装的 `python` 或 `py -3` 调用同一脚本；本包的实际运行环境和未测平台见 VALIDATION.md。
+Windows 可用已安装的 `python` 或 `py -3` 调用同一脚本；脚本输出固定为 UTF-8。
 
 ## 包内容
 
@@ -109,20 +106,24 @@ spec-driven-ai-coding/
   references/              # 流程、规划、质量、协作、格式、迁移
   templates/               # 按需使用的 Markdown 模板
   scripts/                 # init / check / render + 共享实现
-  tests/                   # 解析、门禁、路径、CLI、包一致性回归
   examples/                # 真正运行过的函数示例 + 未实施的 L 规划示例
-  evals/                   # Agent 行为评估场景，未假装已经执行
-  validation/              # 本次运行日志与机器可读结果
-  VALIDATION.md            # 验证范围、结果与局限
   CHANGELOG.md
-  integration-notes.md
   SOURCES.md
+
+# 仓库中的维护资料（不随安装分发）
+dev/spec-driven-ai-coding/
+  tests/                   # 解析、门禁、路径、CLI、包一致性回归
+  evals/                   # Agent 行为评估场景，未假装已经执行
+  validation/              # 历次运行日志与机器可读结果
+  VALIDATION.md            # 验证范围、结果与局限
 ```
 
 ## 自检与示例
 
 ```bash
+# 在仓库 dev/spec-driven-ai-coding/ 下运行回归测试
 python3 -m unittest discover -s tests -v
+# 以下在本 Skill 根目录运行
 python3 scripts/check_spec.py examples/m-filter-export/spec --stage done --check-overall
 python3 scripts/check_spec.py examples/l-rolling/spec --stage ready --check-overall
 # 以下预期失败：L 示例没有用户批准
@@ -140,4 +141,4 @@ python3 -m unittest discover -s . -p 'test_*.py' -v
 Skill 目录可以整体替换，但 v2 辅助检查器不是 v1 文档格式的无缝替代品。已有 v1/其他格式可以继续人工遵循工作流；需要机械检查时再按迁移指南转换。
 检查器防止许多确定性的漏检与状态过期，不证明自然语言需求正确、不验证用户身份、不执行测试、不审查源码、不提供分布式锁。
 无浏览器/真实后端时必须保留必要验证缺项。当前自动化与示例测试不能替代真实多 Agent、长会话或各宿主的行为评估。
-更详细的字段和限制见 [document-format](references/document-format.md)，未来行为评估见 [evals](evals/README.md)。
+更详细的字段和限制见 [document-format](references/document-format.md)；行为评估场景见仓库 `dev/spec-driven-ai-coding/evals/`。

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import pathlib
 import sys
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "common" / "dev" / "skills" / "spec-driven-ai-coding" / "scripts"))
 from init_spec import new_config
 from spec_core import validate
 
@@ -19,12 +19,12 @@ def save(root: pathlib.Path, cfg: dict) -> None:
 
 
 def config(root: pathlib.Path) -> dict:
-    return json.loads((root / "spec.json").read_text())
+    return json.loads((root / "spec.json").read_text(encoding="utf-8"))
 
 
 def replace(root: pathlib.Path, path: str, old: str, new: str) -> None:
     target = root / path
-    value = target.read_text()
+    value = target.read_text(encoding="utf-8")
     assert old in value, (path, old)
     target.write_text(value.replace(old, new), encoding="utf-8")
 

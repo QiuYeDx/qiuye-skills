@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- 维护资料（tests、evals、validation、VALIDATION.md）移至仓库 `dev/spec-driven-ai-coding/`，不再随 Skill 安装；删除已失效的 PACKAGE-MANIFEST.json 与 integration-notes.md。
+- 脚本输出固定为 UTF-8，测试读写显式使用 UTF-8，修复中文 Windows（GBK）下 83 项测试报错。
+- SKILL.md 中重复约 10 处的前端规则收敛为边界 9 加一处引用；`agents/openai.yaml` 改为中立描述。
+
 ## 2.1.0 — 2026-09-08
 
 ### 前端设计与渲染验收
@@ -12,11 +18,11 @@
 ### 兼容与验证边界
 
 沿用 schema_version: 2、CLI 参数、状态与指纹算法，无需迁移已有 v2 文档。当前 UI 任务补足设计与验证计划后重新评估受影响证据，不改写历史验收。
-检查器仍只检查结构和声明，不能自动证明设计充分、截图已审阅或 UI/UX 达标。本次验证及未执行项见 VALIDATION.md。
+检查器仍只检查结构和声明，不能自动证明设计充分、截图已审阅或 UI/UX 达标。本次验证及未执行项见仓库 `dev/spec-driven-ai-coding/VALIDATION.md`。
 
 ## 2.0.0 — 2026-09-06
 
-本地交付版本；基于 QiuYeDx/qiuye-skills 的 11ce270，尚未推送或创建远程 release。
+基于 QiuYeDx/qiuye-skills 的 11ce270 重写。
 
 ### 流程重写
 
@@ -53,5 +59,5 @@ Skill 不强制迁移已有业务文档；旧文档继续沿用时采用人工�
 
 ### 验证与未验证
 
-实际自动化测试、示例执行和结构门禁结果见 VALIDATION.md 与 validation/ 日志。
+实际自动化测试、示例执行和结构门禁结果见仓库 `dev/spec-driven-ai-coding/` 下的 VALIDATION.md 与 validation/ 日志。
 没有运行真实模型 A/B、多 Agent 并行、用户业务项目、浏览器宿主集成或各操作系统原生测试；evals/ 场景用于后续实证，不是测得成绩。

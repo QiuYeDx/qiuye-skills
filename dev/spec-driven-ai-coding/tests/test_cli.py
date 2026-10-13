@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from fixtures import baseline
 
-SCRIPTS = pathlib.Path(__file__).resolve().parents[1] / "scripts"
+SCRIPTS = pathlib.Path(__file__).resolve().parents[3] / "common" / "dev" / "skills" / "spec-driven-ai-coding" / "scripts"
 
 
 class CliTests(unittest.TestCase):
@@ -59,17 +59,17 @@ class CliTests(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()), [])
 
     def test_existing_target_untouched(self):
-        target = self.root / "export"; target.mkdir(); (target / "owned.txt").write_text("user work")
+        target = self.root / "export"; target.mkdir(); (target / "owned.txt").write_text("user work", encoding="utf-8")
         result = self.init("--feature", "export", "--tier", "M")
         self.assertEqual(result.returncode, 1)
-        self.assertEqual((target / "owned.txt").read_text(), "user work")
+        self.assertEqual((target / "owned.txt").read_text(encoding="utf-8"), "user work")
         self.assertEqual(list(target.iterdir()), [target / "owned.txt"])
 
     def test_m_to_l_not_silently_upgraded(self):
         self.assertEqual(self.init("--feature", "export", "--tier", "M").returncode, 0)
         result = self.init("--feature", "export", "--tier", "L", "--modules", "order")
         self.assertEqual(result.returncode, 1)
-        self.assertEqual(json.loads((self.root / "export/spec.json").read_text())["tier"], "M")
+        self.assertEqual(json.loads((self.root / "export/spec.json").read_text(encoding="utf-8"))["tier"], "M")
 
     def test_feature_traversal_rejected_before_write(self):
         result = self.init("--feature", "../outside", "--tier", "M")
@@ -140,10 +140,10 @@ class CliTests(unittest.TestCase):
 
     def test_render_refuses_manual_overall(self):
         root = baseline(self.root / "spec")
-        (root / "task-list-overall.md").write_text("old user-maintained overview")
+        (root / "task-list-overall.md").write_text("old user-maintained overview", encoding="utf-8")
         result = self.run_cli("render_overall.py", root, "--write")
         self.assertEqual(result.returncode, 1)
-        self.assertEqual((root / "task-list-overall.md").read_text(), "old user-maintained overview")
+        self.assertEqual((root / "task-list-overall.md").read_text(encoding="utf-8"), "old user-maintained overview")
 
     def test_render_deterministic_and_checkable(self):
         root = baseline(self.root / "spec")
@@ -158,19 +158,19 @@ class CliTests(unittest.TestCase):
 
     def test_render_rejects_symlink_output(self):
         root = baseline(self.root / "spec")
-        outside = self.root / "outside.md"; outside.write_text("unrelated")
+        outside = self.root / "outside.md"; outside.write_text("unrelated", encoding="utf-8")
         try:
             (root / "task-list-overall.md").symlink_to(outside)
         except OSError:
             self.skipTest("symlinks unavailable")
         result = self.run_cli("render_overall.py", root, "--write")
         self.assertEqual(result.returncode, 1)
-        self.assertEqual(outside.read_text(), "unrelated")
+        self.assertEqual(outside.read_text(encoding="utf-8"), "unrelated")
 
     def test_checker_does_not_execute_embedded_commands(self):
         root = baseline(self.root / "spec")
         file = root / "tasks.md"
-        file.write_text(file.read_text().replace("python -m unittest discover -s tests", "touch SHOULD_NOT_EXIST"))
+        file.write_text(file.read_text(encoding="utf-8").replace("python -m unittest discover -s tests", "touch SHOULD_NOT_EXIST"), encoding="utf-8")
         result = self.run_cli("check_spec.py", root)
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertFalse((root / "SHOULD_NOT_EXIST").exists())

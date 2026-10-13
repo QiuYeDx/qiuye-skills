@@ -6,7 +6,7 @@ import datetime as dt
 import json
 import pathlib
 import re
-from spec_core import CODE, SpecError, local_path, safe_relative
+from spec_core import CODE, SpecError, local_path, safe_relative, utf8_stdio
 
 SKILL = pathlib.Path(__file__).resolve().parent.parent
 SLUG = r"[a-z0-9]+(?:[-_][a-z0-9]+)*"
@@ -59,6 +59,7 @@ def build_files(feature: str, tier: str, modules: list[dict[str, str]], risk: st
 
 
 def main() -> int:
+    utf8_stdio()
     parser = argparse.ArgumentParser(description="生成全新 v2 Spec 骨架；不覆盖，不迁移，不批准")
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path("docs/开发设计文档"))
     parser.add_argument("--feature", required=True)

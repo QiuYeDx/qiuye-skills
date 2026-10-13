@@ -1,5 +1,9 @@
 # 验证报告
 
+> 本目录是 `spec-driven-ai-coding` 的维护资料，2026-10-13 起从 Skill 安装目录移出。以下 v2.0 / v2.1 记录保留原样；其中的 macOS 路径与“包内”措辞是当时的历史事实。
+>
+> 2026-10-13 复验：Windows 11、Python 3.12.6、默认 GBK 代码页下 116 项测试通过（此前同环境 83 项因编码报错）。
+
 ## v2.1.0：2026-09-08
 
 本次修改是前端设计/渲染审查工作流、模板、评估场景与版本元数据；CLI 行为和 v2 schema 未改变。
@@ -31,7 +35,7 @@
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
 | 解析/状态/追踪/证据/路径/CLI/包一致性回归 | 116 项通过，0 失败，0 跳过 | [self-tests](validation/self-tests.txt) |
-| 可执行 CSV 函数示例 | 10 项实际测试通过 | [示例日志](examples/m-filter-export/spec/evidence/unittest.txt) |
+| 可执行 CSV 函数示例 | 10 项实际测试通过 | [示例日志](../../common/dev/skills/spec-driven-ai-coding/examples/m-filter-export/spec/evidence/unittest.txt) |
 | M 示例 done + 总览一致性 | 退出码 0 | [结果](validation/m-done.json) |
 | L 滚动规划 ready + 总览一致性 | 退出码 0 | [结果](validation/l-ready.json) |
 | 未批准的 L 请求进入实施 | 正确拒绝，退出码 1 | [反例结果](validation/l-no-approval.json) |
@@ -58,6 +62,6 @@ M 示例是真实小型纯函数执行；L 示例只是规划结构。不能把�
 
 ## 重跑
 
-从 Skill 根目录运行 `python3 -m unittest discover -s tests -v`。
-从 examples/m-filter-export 运行 `python3 -m unittest discover -s . -p 'test_*.py' -v`。
+从仓库 `dev/spec-driven-ai-coding/` 运行 `python3 -m unittest discover -s tests -v`（测试通过相对路径定位 `common/dev/skills/spec-driven-ai-coding/`）。
+从 Skill 的 examples/m-filter-export 运行 `python3 -m unittest discover -s . -p 'test_*.py' -v`。
 机器可读摘要在 [results.json](validation/results.json)。修改代码后应重跑相关检查；包内旧日志不代表修改后的结果。

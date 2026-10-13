@@ -4,10 +4,11 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
-from spec_core import validate
+from spec_core import utf8_stdio, validate
 
 
 def main() -> int:
+    utf8_stdio()
     parser = argparse.ArgumentParser(description="检查 v2 Spec 的结构、追踪、批准与验证声明；不执行测试")
     parser.add_argument("root", type=pathlib.Path, help="含 spec.json 的需求目录")
     parser.add_argument("--stage", choices=("draft", "ready", "done"), default="ready")

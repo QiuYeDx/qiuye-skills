@@ -4,7 +4,6 @@
 
 在 qiuye-skills 中，用整个新版 `spec-driven-ai-coding/` 替换 `common/dev/skills/spec-driven-ai-coding/`，不要仅覆盖 SKILL.md 后混用旧脚本/模板。
 先保存未提交改动并把旧目录移到 skill 扫描目录之外；新旧同名 Skill 不要同时放在自动发现路径。
-仓库根 README 的介绍/目录需由维护者同步，参考包内 integration-notes.md。本包不修改你的远程仓库。
 
 ## 继续旧版项目
 

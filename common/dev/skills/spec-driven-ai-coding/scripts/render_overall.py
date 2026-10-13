@@ -5,10 +5,11 @@ import argparse
 import os
 import pathlib
 import tempfile
-from spec_core import GENERATED, SpecError, local_path, render_overall, text, validate
+from spec_core import GENERATED, SpecError, local_path, render_overall, text, utf8_stdio, validate
 
 
 def main() -> int:
+    utf8_stdio()
     parser = argparse.ArgumentParser(description="从 tasks.md 生成总览；默认输出到 stdout")
     parser.add_argument("root", type=pathlib.Path)
     parser.add_argument("--write", action="store_true", help="写入 task-list-overall.md；拒绝覆盖人工文档")

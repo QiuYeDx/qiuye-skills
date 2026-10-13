@@ -11,6 +11,7 @@ import hashlib
 import json
 import pathlib
 import re
+import sys
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -48,6 +49,13 @@ def load_json(path: pathlib.Path) -> Any:
         return json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique_object)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise SpecError(f"无法读取 JSON {path.name}: {exc}") from exc
+
+
+def utf8_stdio() -> None:
+    """Emit UTF-8 regardless of the console code page (e.g. GBK on Chinese Windows)."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
 
 
 def text(path: pathlib.Path) -> str:

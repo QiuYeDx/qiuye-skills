@@ -80,12 +80,12 @@ class SpecTests(unittest.TestCase):
         self.reject("全部已完成", "done")
 
     def test_duplicate_requirement(self):
-        with (self.root / "requirements.md").open("a") as f:
+        with (self.root / "requirements.md").open("a", encoding="utf-8") as f:
             f.write("\n" + requirement())
         self.reject("编号重复")
 
     def test_duplicate_task_not_overwritten(self):
-        with (self.root / "tasks.md").open("a") as f:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as f:
             f.write("\n" + task(state="非法状态"))
         self.reject("编号重复")
 
@@ -145,7 +145,7 @@ class SpecTests(unittest.TestCase):
 
     def test_two_task_dependency_cycle(self):
         replace(self.root, "tasks.md", "| 依赖 | - |", "| 依赖 | T-APP-02 |")
-        with (self.root / "tasks.md").open("a") as f:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as f:
             f.write("\n" + task(number="02", deps="T-APP-01"))
         self.reject("依赖成环")
 
@@ -154,7 +154,7 @@ class SpecTests(unittest.TestCase):
         self.reject("未被")
 
     def test_active_task_cannot_depend_on_retired(self):
-        with (self.root / "tasks.md").open("a") as f:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as f:
             f.write("\n" + task(number="02", state="废弃"))
         replace(self.root, "tasks.md", "| 依赖 | - |", "| 依赖 | T-APP-02 |")
         self.reject("废弃任务")
@@ -228,10 +228,10 @@ class SpecTests(unittest.TestCase):
         self.reject("任务指纹")
 
     def test_unfinished_dependency_for_started_task(self):
-        with (self.root / "tasks.md").open("a") as f:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as f:
             f.write("\n" + task(number="02"))
         replace(self.root, "tasks.md", "### T-APP-01", "### T-APP-01")
-        value = (self.root / "tasks.md").read_text()
+        value = (self.root / "tasks.md").read_text(encoding="utf-8")
         value = value.replace("| 依赖 | - |", "| 依赖 | T-APP-02 |", 1).replace("| 状态 | 未开始 |", "| 状态 | 已完成 |", 1)
         put(self.root, "tasks.md", value)
         self.reject("依赖尚未完成")
@@ -261,15 +261,15 @@ class SpecTests(unittest.TestCase):
         self.reject("通配符")
 
     def test_fenced_fake_requirement_ignored(self):
-        put(self.root, "requirements.md", (self.root / "requirements.md").read_text() + "\n```md\n" + requirement() + "\n```\n")
+        put(self.root, "requirements.md", (self.root / "requirements.md").read_text(encoding="utf-8") + "\n```md\n" + requirement() + "\n```\n")
         self.assertEqual(validate(self.root).errors, [])
 
     def test_unclosed_fence(self):
-        put(self.root, "tasks.md", (self.root / "tasks.md").read_text() + "\n```\n")
+        put(self.root, "tasks.md", (self.root / "tasks.md").read_text(encoding="utf-8") + "\n```\n")
         self.reject("未闭合")
 
     def test_html_comment_fake_id_ignored(self):
-        put(self.root, "requirements.md", (self.root / "requirements.md").read_text() + "\n<!--\n" + requirement() + "\n-->\n")
+        put(self.root, "requirements.md", (self.root / "requirements.md").read_text(encoding="utf-8") + "\n<!--\n" + requirement() + "\n-->\n")
         self.assertEqual(validate(self.root).errors, [])
 
     def test_bad_table_columns(self):
@@ -288,7 +288,7 @@ class SpecTests(unittest.TestCase):
         self.reject("具体设计元素")
 
     def test_json_duplicate_key(self):
-        raw = (self.root / "spec.json").read_text().replace('"schema_version": 2', '"schema_version": 2, "schema_version": 2')
+        raw = (self.root / "spec.json").read_text(encoding="utf-8").replace('"schema_version": 2', '"schema_version": 2, "schema_version": 2')
         put(self.root, "spec.json", raw)
         self.reject("JSON 键重复")
 
@@ -314,7 +314,7 @@ class SpecTests(unittest.TestCase):
         approve(self.root); complete(self.root)
         record = self.root / "records/T-APP-01.md"
         outside = self.root.parent / "outside.md"
-        outside.write_text(record.read_text()); record.unlink()
+        outside.write_text(record.read_text(encoding="utf-8"), encoding="utf-8"); record.unlink()
         try:
             record.symlink_to(outside)
         except OSError:
@@ -324,7 +324,7 @@ class SpecTests(unittest.TestCase):
     def test_symlink_requirement_rejected(self):
         file = self.root / "requirements.md"
         outside = self.root.parent / "outside.md"
-        outside.write_text(file.read_text()); file.unlink()
+        outside.write_text(file.read_text(encoding="utf-8"), encoding="utf-8"); file.unlink()
         try:
             file.symlink_to(outside)
         except OSError:
@@ -389,7 +389,7 @@ class SpecTests(unittest.TestCase):
     def test_deferred_future_does_not_require_detailed_tasks(self):
         cfg = config(self.root)
         future = copy.deepcopy(cfg["increments"][0]); future["id"] = "I2"; cfg["increments"].append(future); save(self.root,cfg)
-        with (self.root / "requirements.md").open("a") as file:
+        with (self.root / "requirements.md").open("a", encoding="utf-8") as file:
             file.write("\n" + requirement(number="02", batch="I2", state="deferred").replace("只导出满足筛选条件的记录", "<标题>"))
         self.assertEqual(validate(self.root).errors, [])
 
@@ -403,7 +403,7 @@ class SpecTests(unittest.TestCase):
 
     def test_parallel_same_owner_cannot_run_two_tasks(self):
         cfg = config(self.root); cfg["parallel"].update({"enabled":True,"integrator":"coord"}); save(self.root,cfg)
-        with (self.root / "tasks.md").open("a") as file:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as file:
             file.write("\n" + task(number="02"))
         approve(self.root)
         replace(self.root, "tasks.md", "| 状态 | 未开始 |", "| 状态 | 进行中 |")
@@ -411,7 +411,7 @@ class SpecTests(unittest.TestCase):
 
     def test_parallel_overlap(self):
         cfg = config(self.root); cfg["parallel"].update({"enabled":True,"integrator":"coord"}); save(self.root,cfg)
-        with (self.root / "tasks.md").open("a") as file:
+        with (self.root / "tasks.md").open("a", encoding="utf-8") as file:
             file.write("\n" + task(number="02").replace("agent-app", "other-agent"))
         approve(self.root)
         replace(self.root, "tasks.md", "| 状态 | 未开始 |", "| 状态 | 进行中 |")
