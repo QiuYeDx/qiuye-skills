@@ -1,0 +1,4 @@
+interface:
+  display_name: "边缘渐变淡出遮罩"
+  short_description: "滚动容器、视口、跑马灯与图案边缘的柔和渐隐遮罩模板"
+  default_prompt: "Use $qiuye-edge-gradient-mask to add a soft edge fade to this area."

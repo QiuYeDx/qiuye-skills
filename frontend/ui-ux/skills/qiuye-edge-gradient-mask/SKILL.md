@@ -1,14 +1,14 @@
 ---
 name: qiuye-edge-gradient-mask
 description: >-
-  Implement edge gradient fade masks for scrollable areas, viewports, sections,
-  and visual elements. Use when adding soft fade-out edges to scroll containers,
-  page borders, infinite scroll strips, card edges, or any area that needs a
-  smooth gradient transition instead of a hard clip. Covers scroll-aware
-  show/hide, horizontal/vertical fades, CSS mask-image, and overlay div
-  approaches. Triggers on: "edge fade", "gradient mask", "scroll fade",
-  "fade edge", "edge mask", "soft edge", "gradient overlay", "scroll shadow",
-  "overflow fade", "mask-image gradient", "edge blur".
+  Implement edge gradient fade masks so content softly fades out at the edges of
+  scroll containers, viewports, marquees, cards and background patterns instead
+  of hard clipping. Covers scroll-aware top/bottom fades, horizontal marquee
+  fades, fixed viewport edge fades with blur, mask-image on the scroller itself,
+  and pattern fade-outs. Use for edge fade, scroll fade, overflow fade, gradient
+  mask, mask-image gradient, 边缘渐隐、滚动渐隐遮罩、跑马灯两侧淡出.
+  Not for text readability scrims over images (use qiuye-soft-text-backdrop) or
+  shape reveal transitions (use geometric-mask-transition).
 ---
 
 # Edge Gradient Mask (边缘渐变遮罩)
@@ -42,10 +42,13 @@ description: >-
 
 ```tsx
 <div
-  className="pointer-events-none fixed bottom-0 left-0 right-0 z-[1] isolate h-24 w-full"
+  className="pointer-events-none fixed bottom-0 left-0 right-0 z-[1] h-24 w-full"
   style={{
-    background: "oklch(from var(--background) l c h / 90%)",
+    // --background 为完整颜色值（如 oklch(...) / #fff）时可用；shadcn + Tailwind v3 的
+    // HSL 分量变量（"0 0% 100%"）需改为 "hsl(var(--background) / 0.9)"
+    background: "color-mix(in oklab, var(--background) 90%, transparent)",
     backdropFilter: "blur(4px)",
+    WebkitBackdropFilter: "blur(4px)",
     maskImage: "linear-gradient(transparent 0%, black 100%)",
     WebkitMaskImage: "linear-gradient(transparent 0%, black 100%)",
   }}
@@ -55,8 +58,9 @@ description: >-
 
 **关键点**：
 - `mask-image` 控制遮罩元素自身的透明度渐变（顶部透明 → 底部不透明）
-- `background` 使用 `oklch(from var(--background) ...)` 从主题变量派生颜色
-- `isolate` 创建独立层叠上下文，避免 `backdrop-blur` 影响范围溢出
+- `background` 用 `color-mix()` 从主题变量派生半透明色（比 `oklch(from ...)` 相对颜色语法支持更广）；先确认 `--background` 存的是完整颜色还是 HSL 分量
+- `mask-image` 同时作用于自身背景和 `backdrop-filter` 的结果，模糊会随渐变一起淡出；模糊只采样元素自身矩形下方的内容，不需要 `isolate` 来“限制范围”
+- `backdrop-filter` 需同时写 `WebkitBackdropFilter`（Safari 18 以前只认前缀版）；祖先上的 `filter` / `opacity < 1` / `mask` 等会让它失效，排查见 frontend-pitfalls 的 backdrop-filter case
 - 顶部遮罩则 `top-0` + 渐变方向反转：`linear-gradient(black 0%, transparent 100%)`
 
 ---
@@ -97,9 +101,15 @@ useEffect(() => {
 
 ### 2. 渐变遮罩渲染
 
+遮罩必须是滚动容器的**兄弟节点**，由不滚动的外层 `relative` 包裹定位。若把 `absolute` 遮罩放进 `overflow-auto` 容器内部，它会跟随内容一起滚走：顶部遮罩滚出视野，底部遮罩停在内容中段。
+
 ```tsx
-<div ref={containerRef} className="relative overflow-auto">
-  {children}
+import { AnimatePresence, motion } from "motion/react";
+
+<div className="relative">
+  <div ref={containerRef} className="max-h-80 overflow-auto">
+    {children}
+  </div>
 
   <AnimatePresence>
     {showTopFade && (
@@ -132,14 +142,34 @@ useEffect(() => {
 ```
 
 **关键点**：
-- `bg-gradient-to-b from-background to-transparent`：从实色到透明的渐变
+- `bg-gradient-to-b from-background to-transparent`：从实色到透明的渐变（Tailwind v4 写作 `bg-linear-to-b`）
 - `AnimatePresence` + `motion.div` 实现平滑的淡入淡出
-- 父容器需 `relative` + `overflow-auto/hidden/scroll`
+- 外层 `relative` 不滚动，负责定位遮罩；内层负责 `overflow-auto`
+- 有常驻滚动条时，遮罩会盖住滚动条：给遮罩设 `right` 等于滚动条宽度，或改用下方的 mask 方案
 - 遮罩高度（`h-10`）按场景调整，通常 24px–56px
+
+### 变体：直接在滚动容器上加 `mask-image`
+
+内容下方是图片、渐变或半透明背景，找不到可匹配的实色时，不用 overlay，直接让滚动容器自身淡出。mask 跟随容器盒而非内容，不会滚走；代价是滚动条也会一起被淡化。
+
+```tsx
+const FADE = 40;
+const mask = `linear-gradient(to bottom,
+  transparent 0, black ${showTopFade ? FADE : 0}px,
+  black calc(100% - ${showBottomFade ? FADE : 0}px), transparent 100%)`;
+
+<div
+  ref={containerRef}
+  className="max-h-80 overflow-auto"
+  style={{ maskImage: mask, WebkitMaskImage: mask }}
+>
+  {children}
+</div>
+```
 
 ### 简化版（不需要动画）
 
-当不需要平滑过渡动画时，可直接用条件渲染：
+当不需要平滑过渡动画时，可直接用条件渲染（同样放在外层 `relative` 中、滚动容器之外）：
 
 ```tsx
 {showTopFade && (
@@ -159,6 +189,7 @@ useEffect(() => {
 <AnimatePresence>
   {needsExpansion && !isExpanded && (
     <motion.div
+      aria-hidden="true"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -254,9 +285,9 @@ useEffect(() => {
                       linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
     backgroundSize: "48px 48px",
     maskImage:
-      "radial-gradient(ellipse 80% 50% at center top, transparent 0%, black 80%)",
+      "radial-gradient(ellipse 80% 50% at center top, black 0%, transparent 100%)",
     WebkitMaskImage:
-      "radial-gradient(ellipse 80% 50% at center top, transparent 0%, black 80%)",
+      "radial-gradient(ellipse 80% 50% at center top, black 0%, transparent 100%)",
   }}
 />
 ```
@@ -264,7 +295,8 @@ useEffect(() => {
 **关键点**：
 - `mask-image` 作用于元素自身，控制哪些区域可见（`black` = 可见，`transparent` = 不可见）
 - 渐变形状用 `radial-gradient(ellipse ...)` 或 `linear-gradient(...)` 按需选择
-- 始终同时写 `maskImage` 和 `WebkitMaskImage`（Safari 兼容）
+- 上例让网格在顶部中央清晰、向四周淡出；若要反过来在中央挖空（例如给标题让位），交换 `black` 与 `transparent`
+- 同时写 `maskImage` 和 `WebkitMaskImage`：无前缀版在 Chrome 120+、Safari 15.4+、Firefox 53+ 可用，前缀版兜底更旧的 Chromium / Safari
 
 ---
 
@@ -273,7 +305,7 @@ useEffect(() => {
 | 优先级 | 方式 | 示例 |
 |---|---|---|
 | 1 | Tailwind 语义 token | `from-background to-transparent` |
-| 2 | CSS 变量派生 | `oklch(from var(--background) l c h / 90%)` |
+| 2 | CSS 变量派生 | `color-mix(in oklab, var(--background) 90%, transparent)`；HSL 分量变量用 `hsl(var(--background) / 0.9)` |
 | 3 | 亮/暗分别指定 | `from-[#fcfcfc] dark:from-[#121212]` |
 
 优先使用方式 1；需要透明度控制时使用方式 2；仅在语义 token 无法精确匹配时使用方式 3。
@@ -284,7 +316,8 @@ useEffect(() => {
 
 - **缺少 `pointer-events-none`**：遮罩会拦截下方元素的点击
 - **缺少 `aria-hidden="true"`**：屏幕阅读器会读到空的装饰性元素
-- **忘记 `WebkitMaskImage`**：Safari 需要带前缀的版本
+- **忘记 `WebkitMaskImage` / `WebkitBackdropFilter`**：较旧的 Chromium（<120）与 Safari 只认前缀版本
+- **遮罩放进了滚动容器内部**：`absolute` 遮罩会随内容滚走，应作为滚动容器的兄弟节点
 - **z-index 不当**：遮罩需要高于内容、低于交互控件
 - **背景色不匹配**：渐变的实色端必须与容器/页面背景一致，否则会出现色差
 - **容器缺少 `relative`**：`absolute` 定位的遮罩需要最近的 `relative` 父级
