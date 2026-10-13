@@ -144,7 +144,7 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill project-pitfa
 
 #### `qiuye-ui-quality` — UI 质量与自主验收
 
-先确定项目视觉参照、组件变体与空间关系，再实现界面并通过真实渲染主动找问题、修复和复验。覆盖边距与圆角附近等距留白、信息密度、多行对齐、纵向高度预算、横向空间利用、分页、文件名、Tooltip 和组合交互状态；附失误原因、测量方法与行为评估场景。新增 [视觉边距与嵌套轮廓](frontend/ui-ux/skills/qiuye-ui-quality/references/visual-insets-and-contours.md) 专题：把“角上不匀、hover 贴边、图标离太远”等反馈转成内容/背景/热区/外壳的关系检查，包含矮控件圆角压缩与滚动末项验收，不预设固定像素或隐藏滚动条。
+先确定项目视觉参照、组件变体与空间关系，再实现界面并通过真实渲染主动找问题、修复和复验。覆盖边距与圆角附近等距留白、信息密度、多行对齐、纵向高度预算、横向空间利用、分页、文件名、Tooltip 和组合交互状态；附失误原因、测量方法与行为评估场景。新增 [视觉边距与嵌套轮廓](frontend/ui-ux/skills/qiuye-ui-quality/references/visual-insets-and-contours.md) 专题：把“角上不匀、hover 贴边、图标离太远”等反馈转成内容/背景/热区/外壳的关系检查，包含矮控件圆角压缩与滚动末项验收，不预设固定像素或隐藏滚动条。首版写嵌套表面时就从最内层固定形状向外推半径，附转角空隙估算 `p + 0.41 × (r − (R − p))`，并识别由平台绘制、页面改不了的最外层轮廓（如 Windows 窗口圆角）。
 
 通用 Skill 不规定品牌风格和固定像素值，项目视觉约定留在项目级 Skill；验证范围随改动影响调整，支持局部修复、页面重写与只读评审。评估场景不代表已经证明模型首轮通过率。
 
@@ -228,6 +228,8 @@ npx skills add https://github.com/qiuyedx/qiuye-skills.git --skill frontend-pitf
 #### `qiuye-smooth-corners` — 平滑圆角实现指南
 
 面向前端项目实现 Figma / iOS 风格平滑圆角，优先使用 QiuYe UI 的 shadcn registry 组件，并提供 `@qiuyedx/smooth-corners` npm 包、无依赖内联 helper 与尺寸感知 observer 方案。
+
+全应用推广时可用纯 CSS 的 Tailwind `rounded-smooth-*` 工具类：固定 smoothing 下补偿倍数与 `superellipse(K)` 都是常数，输出与组件一致。附 tailwind-merge 冲突配置、小尺寸元素降档、`rounded-[inherit]` 子元素继承 `corner-shape` 等注意事项。嵌套圆角从最内层的胶囊 / 圆形按钮向外推半径（外 = 内 + 内缩量），所有层用同一 smoothing；最外层由平台决定（如桌面窗口边框）时，要么反推内层，要么自绘外壳。
 
 **触发词：** smooth corners、corner smoothing、continuous corners、squircle、superellipse、平滑圆角、圆角平滑、超椭圆圆角、连续圆角
 

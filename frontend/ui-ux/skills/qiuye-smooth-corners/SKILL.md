@@ -35,8 +35,22 @@ Choose the implementation route with this priority:
 | Dynamic element size, or `radius * (1 + smoothing)` > half the short side | Use size-aware compute/observer |
 | Dependencies disallowed | Use inline helper + CSS `@supports` |
 | Only global design-token radius needs changing | Prefer theme tokens; do not force this skill |
+| Tailwind v4 app adopting smooth corners across many class-styled surfaces (including shadcn primitives) | CSS-only `rounded-smooth-*` utility, see recipe 8 |
 
 Hard rule: if the project can use shadcn/ui registry, prefer QiuYe UI's `@qiuye-ui/smooth-corners` component instead of manually installing the lower-level `@qiuyedx/smooth-corners` package. Use the npm package directly only for non-shadcn projects, lower-level APIs, or QiuYe UI component internals.
+
+Exception for app-wide rollout: wrapping dozens of surfaces in a component is heavy and cannot reach class names inside shadcn primitives. With one fixed smoothing the package output is radius-independent (`r * (1 + s)` plus a constant `superellipse(K)`), so a Tailwind utility gives identical corners from a class name. Keep `SmoothCorners` (with `observeSize`) for the few dynamic or large-radius surfaces.
+
+## App-Wide Utility Route
+
+Read recipe 8 in `references/implementation-recipes.md` for the utility, the tailwind-merge config and the constants. In short:
+
+- Add `@utility rounded-smooth-*` once, imported by every Tailwind entry (main page, overlay or tray windows, iframes).
+- Extend tailwind-merge so `rounded-*` and `rounded-smooth-*` replace each other in `cn()`.
+- Convert surfaces token for token (`rounded-xl` → `rounded-smooth-xl`); leave pills and circles as `rounded-full`.
+- Step small elements down a token when `radius * (1 + s)` would exceed half their short side.
+- Give `rounded-[inherit]` children `[corner-shape:inherit]`.
+- Verify the built CSS actually contains every form used, especially arbitrary values.
 
 ## QiuYe UI Route
 
@@ -132,6 +146,10 @@ For custom framework wrappers, use `computeSmoothCorners` or the inline equivale
 
 This section covers only what smoothing changes. The general method for nested contours (content edge vs hover surface vs hit area vs shell) lives in `qiuye-ui-quality`'s `references/visual-insets-and-contours.md` when that skill is installed.
 
+Choose nested radii before writing classes, from the innermost fixed shape outward: a pill or circular button already has radius `height / 2`, so its container corner wants about `pill radius + inset`, and the next shell adds its own padding again (e.g. 24px pill at 8px inset → stage 16–20px; stage 16px + 8px padding → panel 24px). Apply the relation to the base radius before compensation; all layers share one smoothing, so `* (1 + s)` scales them together. Use the same smoothing on every nested layer: mixing a smooth outer contour with a circular inner one reads as uneven even at correct spacing.
+
+The outermost contour may belong to the platform rather than the page. Desktop windows are the common case: Windows 11 rounds every framed window to a fixed small radius that CSS cannot change, so a large inner radius inside it looks wrong whatever the padding. Either derive the inner radii from the platform radius, or let the app own the shell (for example a frameless transparent window that paints the panel, its smooth corners and its shadow). The trade-offs of owning the shell are covered in `qiuye-ui-quality`'s contour reference.
+
 When a smooth control sits near a container corner, compare the actual hover surface to both adjacent container edges, then inspect the space along the curves. Equal rectangular padding alone is not proof of uniform contour spacing. For concentric circular corners, outer radius minus inset is a useful starting point; smooth/superellipse curves need rendered review, not an assertion that identical smoothing creates an exact offset curve.
 
 Check final compensated CSS radii against the rendered layout dimensions. Adjacent radii that cannot fit their side can cause all radii to shrink; computed style can still report the specified radii. For example, a 40px-high row cannot retain 30px at both ends of either vertical side. This is a diagnostic example, not a recommended size. See [CSS corner overlap](https://www.w3.org/TR/css-backgrounds-3/#corner-overlap); other shapes also need their applicable constraints checked.
@@ -156,6 +174,10 @@ Apply per-corner overrides in both the normal-radius fallback and the enhanced r
 - Assuming unsupported browsers can render continuous corners.
 - Replacing all design-system radius tokens when only one surface needs smoothing.
 - Installing `@qiuyedx/smooth-corners` manually in a shadcn project where `@qiuye-ui/smooth-corners` is available.
+- Smoothing only the outer shell, or only the inner surface, of a nested pair; or picking nested radii independently instead of `outer = inner + inset`.
+- Putting a large inner radius inside a contour the page does not control (OS window frame, host container) and tuning padding to compensate.
+- Using `rounded-smooth-*` without the tailwind-merge extension, so `rounded-none` overrides become order-dependent.
+- Bulk-converting tiny controls whose enhanced radius exceeds half their height, turning them into accidental pills.
 
 ## Validation
 
@@ -171,4 +193,4 @@ Before finishing:
 
 ## Detailed Recipes
 
-Read `references/implementation-recipes.md` when you need package setup details, inline helper code, React wrapper code, Vue/vanilla examples, or ResizeObserver templates. Keep `SKILL.md` as the decision guide and use the reference only for implementation details.
+Read `references/implementation-recipes.md` when you need package setup details, inline helper code, React wrapper code, Vue/vanilla examples, ResizeObserver templates, or the app-wide Tailwind utility (recipe 8). Keep `SKILL.md` as the decision guide and use the reference only for implementation details.

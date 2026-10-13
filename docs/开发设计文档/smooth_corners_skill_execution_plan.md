@@ -3,7 +3,7 @@
 > 2026-10-13：Skill 目录已由 `frontend/ui-ux/skills/smooth-corners/` 更名为 `frontend/ui-ux/skills/qiuye-smooth-corners/`，与 `name` 对齐；下文保留原始路径作为历史记录。
 
 创建日期：2026-07-06
-更新日期：2026-07-06
+更新日期：2026-10-13
 
 ## 使用方式
 
@@ -32,6 +32,7 @@
 | SK-3 README 注册 | 已完成 | 2026-07-06 | `README.md` | `rg -n "qiuye-smooth-corners|@qiuye-ui/smooth-corners|@qiuyedx/smooth-corners" ...` | `docs/开发设计文档/smooth_corners_skill_implementation_records/2026-07-06_SK-1-SK-5_qiuye-smooth-corners-skill.md` | 无 |
 | SK-4 验证与前向测试 | 已完成 | 2026-07-06 | Skill 目录 | 临时 venv 执行 `quick_validate.py` 通过；静态引用检查通过 | `docs/开发设计文档/smooth_corners_skill_implementation_records/2026-07-06_SK-1-SK-5_qiuye-smooth-corners-skill.md` | 未执行 subagent 前向测试 |
 | SK-5 与 QiuYe UI 组件发布同步 | 已完成 | 2026-07-06 | `SKILL.md`, `references/implementation-recipes.md` | Skill 明确 shadcn 项目优先 `@qiuye-ui/smooth-corners`，底层包为 `@qiuyedx/smooth-corners@0.1.0` | `docs/开发设计文档/smooth_corners_skill_implementation_records/2026-07-06_SK-1-SK-5_qiuye-smooth-corners-skill.md` | 需等站点部署后做真实 registry 安装抽检 |
+| SK-6 全应用工具类与嵌套圆角推导 | 已完成 | 2026-10-13 | `frontend/ui-ux/skills/qiuye-smooth-corners/SKILL.md`, `references/implementation-recipes.md`; `frontend/ui-ux/skills/qiuye-ui-quality/references/visual-insets-and-contours.md`, `SKILL.md`, `evals/scenarios.md` | 常数表由 `@qiuyedx/smooth-corners@0.1.0` 实算；工具类、tailwind-merge 配置与小尺寸降档来自 PotSubOverlay v1.3.0 实装（构建产物与 Electron 截图验收） | `docs/开发设计文档/smooth_corners_skill_implementation_records/2026-10-13_SK-6_app-wide-utility-and-nested-radii.md` | 未做 subagent 前向测试 |
 
 ## 依赖顺序
 
