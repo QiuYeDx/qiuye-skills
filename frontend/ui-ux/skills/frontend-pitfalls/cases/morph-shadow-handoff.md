@@ -8,6 +8,8 @@
 - 展开第一帧，重阴影直接以满强度出现。
 - 落地时阴影轮廓、颜色或扩散与卡片略有差异，交接时「跳一下」。
 
+> 几何、状态机与内容编排的完整实现见 [motion-recipes Case 7：容器变形过渡](../../motion-recipes/cases/container-transform-morph.md)；本 case 只负责阴影交接。
+
 ## 适用场景
 
 - 卡片 → 详情浮层、列表项 → 居中面板、FAB → Dialog、缩略图 → 灯箱。

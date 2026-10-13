@@ -1,21 +1,12 @@
 ---
 name: frontend-pitfalls
 description: >-
-  前端避坑 case 集合：沉淀真实项目中容易被 AI Agent 或开发者误用的 UI/CSS/交互实现坑位，
-  并给出稳定结构、排查顺序、推荐模板与验收清单。Use when fixing or implementing
-  tricky frontend UI behavior, CSS rendering issues, browser compatibility
-  problems, animation glitches, Tailwind/shadcn UI pitfalls, glassmorphism,
-  backdrop-filter/backdrop-blur, stacking context, overflow clipping, opacity
-  compositing, mobile header dropdowns, transparent navbars, HUD/tool overlays,
-  Radix/shadcn ScrollArea sizing and positioning, scrollbars that appear after
-  a transition and reflow content, shadow jumps when a container-transform
-  overlay lands on its card, mouse drag-to-scroll for horizontal carousels
-  and scroll-snap rows, or when the user asks for "前端避坑",
-  "避坑 case", "背景模糊失效", "backdrop-filter", "backdrop-blur", "玻璃态",
-  "毛玻璃", "Safari 模糊", "移动端菜单模糊", "透明导航栏", "浮层动画闪烁",
-  "ScrollArea 滚不动", "滚动条挤占宽度", "滚动条出现内容重排",
-  "阴影突然消失", "收起时阴影跳变", "展开浮层阴影", "鼠标拖拽滚动",
-  "横向滚动鼠标拖不动", "拖拽后误触发点击", "轮播支持鼠标拖动".
+  前端避坑 case 集合：针对容易被 AI Agent 写错的 UI/CSS/交互坑位，给出排查顺序、稳定结构、模板与验收清单。
+  Use when debugging or implementing one of the covered cases: backdrop-filter / 毛玻璃 blur that
+  silently fails or pops in (headers, menus, overlays, Safari); Radix/shadcn ScrollArea sizing,
+  positioning or scrollbar-induced reflow; shadow jumps when a container-transform overlay lands
+  on its card; mouse drag-to-scroll for horizontal rows with scroll-snap and click suppression.
+  Not for building animations from scratch (use motion-recipes) or general UI polish.
 ---
 
 # Frontend Pitfalls — 前端避坑 Case 集合
@@ -30,6 +21,8 @@ description: >-
 4. 完成后执行 case 的「验收清单」，尤其检查浏览器兼容、层叠上下文、动画离场状态和移动端表现。
 
 如果没有完全匹配的 case，选择最接近的 case 作为参考，并把新踩到的坑补充为新的 case。
+
+动画本身的实现（layoutId、AnimatePresence、auto-height、容器变形几何等）见 `motion-recipes`；本 Skill 只覆盖其中容易出错的渲染与交接细节。
 
 ## 案例索引
 
@@ -84,6 +77,6 @@ description: >-
 新增 case 时：
 
 1. 在 `cases/` 下创建小写英文连字符文件名，如 `css-sticky-overflow.md`。
-2. 在本文件「案例索引」和「场景匹配指南」中注册。
+2. 在本文件「案例索引」和「场景匹配指南」中注册。用户口语化的触发短语写进「场景匹配指南」，frontmatter `description` 只补一句覆盖范围，避免超过 1024 字符上限。
 3. case 文件至少包含：目标、适用场景、排查顺序、推荐结构、常见坑与修复、AI Agent 执行步骤、验收清单。
 4. 只记录实战中非显而易见、容易误判或容易被 Agent 写错的内容；基础 API 教程不要放进来。

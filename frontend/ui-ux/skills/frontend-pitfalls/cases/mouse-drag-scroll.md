@@ -121,6 +121,12 @@ export function useDragScroll<T extends HTMLElement>() {
 
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerId !== pointerId) return;
+      // 未过阈值时尚未捕获指针：在行外松开收不到 pointerup，鼠标的 pointerId 又固定不变，
+      // 之后不按键悬停回来也会被当成拖拽。左键已松开就放弃这次按下。
+      if (!dragging && (event.buttons & 1) === 0) {
+        pointerId = null;
+        return;
+      }
       const dx = event.clientX - startX;
       if (!dragging) {
         if (Math.abs(dx) < DRAG_THRESHOLD) return;
@@ -298,6 +304,18 @@ el.addEventListener("pointerdown", (e) => {
 - 对速度做简单的指数平滑。
 - 最后一次移动距松手超过约 80ms 时视为停住，不带惯性。
 
+### 坑 8: 未过阈值就在行外松手，之后悬停也会拖动
+
+原因：
+
+- 指针捕获推迟到超过阈值才发生。按下后没拖够距离就移出行外松开，`pointerup` 发生在行外，容器收不到，`pointerId` 一直留着。
+- 鼠标的 `pointerId` 在整个会话中通常不变，之后不按任何键、只把鼠标移回行内，`pointermove` 也会命中这个 `pointerId`，被当成一次拖拽。
+
+修复：
+
+- 未进入拖拽时，在 `pointermove` 中检查 `(event.buttons & 1) === 0`，左键已松开就清空 `pointerId` 并退出（见推荐模板）。
+- 或在按下时于 `window` 上临时监听 `pointerup`，确保无论在哪里松开都能复位。
+
 ## AI Agent 执行步骤
 
 1. 找出所有横向滚动区域，确认在哪些断点可滚动、是否使用 scroll-snap 与 scroll-padding。
@@ -316,6 +334,7 @@ el.addEventListener("pointerdown", (e) => {
 - 拖完后 `scroll-snap-type` 已恢复为 CSS 中的值，之后用触控板滚动仍会吸附。
 - 触屏滑动的行为与改动前一致。
 - 宽屏不可滚动时没有 grab 光标，点击不受影响。
+- 按下后未拖动、移到行外松开，再不按键悬停回行内，内容不会跟着移动。
 
 ## 推荐回答格式
 

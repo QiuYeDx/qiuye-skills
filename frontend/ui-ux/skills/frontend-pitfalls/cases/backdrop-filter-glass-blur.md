@@ -22,7 +22,7 @@
 
 1. 确认元素有透明或半透明背景，且后方真的有可被取样的页面内容。
 2. 同时设置 `backdrop-filter` 和 `-webkit-backdrop-filter`。
-3. 检查父级是否也有 `backdrop-filter`、`filter`、`transform`、`opacity`、`contain`、`isolation` 等会改变合成上下文的属性。
+3. 检查祖先链上是否有会创建 Backdrop Root 的属性：`filter`、`opacity < 1`、`mask` / `mask-image`、`clip-path`、`backdrop-filter`、`mix-blend-mode`（以及对它们的 `will-change`）。命中时模糊只能取样到该祖先内部，看起来像“没模糊到页面”。`transform`、`contain`、`isolation` 不会截断取样，但前两者会让 `position: fixed` 的浮层改为相对该祖先定位、`contain: paint` 还会裁切，需要另外排查位置与裁切问题。
 4. 检查承载 blur 的元素是否正在做 `height`、`clip-path`、`overflow` 相关动画。
 5. 检查是否只用 `opacity` 淡入一个已经满强度的 blur 层。
 6. 检查静态 `border`、阴影、背景 tint 是否放在了离场动画容器上。
