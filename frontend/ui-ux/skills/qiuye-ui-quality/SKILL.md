@@ -1,12 +1,14 @@
 ---
 name: qiuye-ui-quality
 description: >-
-  Build, redesign, or polish frontend UI with project-grounded design decisions
-  and a rendered self-review and repair loop before delivery. Use for UI/UX
-  implementation, visual consistency, spacing, information density, responsive
-  layouts, and requests to reduce repeated manual design feedback. 适用于界面重写、
-  UI/UX 打磨、视觉一致性、间距与密度优化、圆角间隙不匀、hover 贴边、图标视觉间距与交付前自检。Not a prescribed visual style
-  or a replacement for domain-specific motion, accessibility, or CSS debugging.
+  Deliver frontend UI that needs no repeated manual design feedback: ground
+  decisions in the project's existing references, build with real states, then
+  review the rendered result, fix and re-verify before delivery. Use when the
+  task is to build or redesign a screen, or when the user asks to polish visual
+  quality, consistency, spacing, density or alignment (界面重写、UI/UX 打磨、
+  视觉一致性、间距与密度、圆角间隙与 hover 贴边、交付前自检). Not for small
+  functional UI edits, a prescribed visual style, or motion, accessibility
+  and CSS-bug work that has its own skill.
 ---
 
 # UI 质量与自主验收
@@ -21,6 +23,17 @@ description: >-
 - 纯建议或只读评审：交付证据、问题与建议，不把本 Skill 当成修改授权。
 
 本 Skill 管交付过程。项目级 Skill 管品牌、组件与数值。专门的动效、可访问性或前端故障 Skill 仅在任务需要时加载；本 Skill 不要求额外依赖、全套 Spec 文档或多 Agent。
+
+## 按症状读取参考
+
+正文是主流程；具体机理、测量方法和验收对象在 references 中，命中时再读：
+
+| 用户反馈或任务特征 | 参考 |
+| --- | --- |
+| 角上不匀、hover 贴边、图标离边太远、嵌套圆角不顺、滚动浮层末项贴边 | [视觉边距与嵌套轮廓](references/visual-insets-and-contours.md) |
+| 风格不像本项目、边距 / 密度不一致、多行错位、文件名截断、Tooltip 留白、组合状态出错、行高亮与分割线叠加 | [常见失误与修复](references/failure-catalog.md) 对应条目 |
+| 成功 / 失败等少量信息的结果弹窗 | [结果反馈卡片](references/result-feedback.md) |
+| 怎么取样、测量、截图审查，测试为何没检出问题 | [渲染验收方法](references/rendered-review.md) |
 
 ## 1. 在写样式前建立参照
 
@@ -44,7 +57,7 @@ description: >-
 - 检查方案在实际规模和重复使用下是否仍然顺手，明确操作对象与作用范围。用足以暴露操作成本的样本判断必要能力，不因存在列表就默认增加整套管理功能。
 - 分别检查纵向预算与横向利用：标题、上传区、元数据、Tab、表头和分页各占多少高度，剩下能显示多少有效内容；是否一边反复叠行、一边横向大面积空闲。不能只检查“没有溢出”。
 - 沿用项目的间距尺度。区分面板外间隔、内部留白、字段间距和控件热区；“一致”是同类关系一致，不是所有数值相等。
-- 圆角附近单独检查等距关系：靠角的按钮、输入框或嵌套表面，到外层容器相邻两条内边界的留白应优先相等，例如右上角比较上/右，右下角比较下/右。统一 token 不代表最终等距；还要检查内外圆角形成的空白是否自然，不能一侧贴边、一侧松散。该原则用于靠角包裹关系，不要求整页所有水平/垂直间距相等。
+- 靠角的按钮、输入框或嵌套表面，到外层容器相邻两条内边界的留白优先相等（右上角比较上/右），并检查内外圆角间的空白是否自然；不要求整页所有间距相等。区分内容边界、hover 背景、点击热区与外壳轮廓，方法见 [视觉边距与嵌套轮廓](references/visual-insets-and-contours.md)。
 - 对齐到真实内容边缘：按钮外框、图标字形、焦点轮廓不是同一个边界。需要说明光学调整时保持同类控件一致，不靠压缩点击热区来求整齐。
 - 不等边距先判断哪个值合理，再统一相关区域；不要总把较小边距增大到较大值。局部看齐可能让整页更松散，并与邻近面板继续不一致。
 - 给内容列 `min-width: 0` 等收缩条件。普通列表项按正常一行排版，多行只增长当前项；比较型行里的编号、时间、内容和操作保持顶部基线关系。
@@ -55,15 +68,7 @@ description: >-
 
 在实现相关组件前，阅读 [常见失误与修复](references/failure-catalog.md) 中对应的条目。那里给出故障机理与验收对象，不提供通用像素配方。
 
-### 视觉边距与嵌套轮廓
-
-新建含靠角操作、嵌套表面或滚动浮层的界面时，主动区分内容可见边界、hover 背景、点击热区和外壳轮廓；直边 padding 相等不代表曲线间隙相等。用户说“间距不舒服”“hover 贴边”“角上不匀”时也走这一路径。
-
-按需读取 [视觉边距与嵌套轮廓](references/visual-insets-and-contours.md)：先确定哪两条边界需要协调，再检查圆角实际尺寸、状态背景和滚动占位。移动图标必须同时复验其背景内留白；矮控件的大圆角要排除浏览器缩小半径；滚动末项需验证焦点不会改变原本的等距关系。使用项目数值，不把某次修复的形状、像素或隐藏滚动条当成默认风格。
-
-### 少量信息的结果反馈
-
-简短结果需要独立模态时，优先把它作为完整卡片设计：统一留白与信息层级，避免照搬表单的多段边线、叠加 padding，以及孤立在右下角的单一按钮。Header / Footer 是可选布局，Title / Description 的语义职责另行保留；复杂表单仍按实际任务分区。相关设计与验收见 [结果反馈卡片](references/result-feedback.md)，其中也说明与后续容器变形过渡的关系。
+- 简短结果需要独立模态时，按完整卡片设计统一留白与层级，不照搬表单的分段边线和孤立的单一按钮，见 [结果反馈卡片](references/result-feedback.md)。
 
 ## 3. 用真实状态完成初版
 

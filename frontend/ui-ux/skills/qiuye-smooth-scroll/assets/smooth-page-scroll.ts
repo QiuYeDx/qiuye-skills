@@ -17,10 +17,13 @@ export function createSmoothPageScroll({
   nativeScrollInterop = false,
   disableOnIOS = true,
 } = {}) {
+  // Call from a client-only effect; this guard only keeps SSR imports harmless.
+  if (typeof window === "undefined") return () => {};
   // iPadOS can use a desktop Mac UA. Return before installing any listeners,
   // observers or native scroll API wrappers, not just before creating Lenis.
   const isIOS =
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    // navigator.platform is deprecated but remains the practical iPadOS desktop-UA signal.
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if (disableOnIOS && isIOS) return () => {};
 
@@ -143,11 +146,26 @@ export function createSmoothPageScroll({
   document.addEventListener("visibilitychange", sync);
   reducedMotion.addEventListener("change", sync);
 
-  // Radix/react-remove-scroll, custom lightboxes, and fullscreen Mermaid all
+  // Radix/react-remove-scroll, custom lightboxes, and fullscreen viewers all
   // lock differently. Observe only root attributes, never the animated subtree.
-  const observer = new MutationObserver(sync);
+  // Lenis toggles its own lenis-* classes on <html> at every scroll start/stop;
+  // skip those so sync() does not force style recalculation on each wheel burst.
+  const withoutLenisClasses = (value: string | null) =>
+    (value ?? "")
+      .split(/\s+/)
+      .filter((name) => name && !name.startsWith("lenis"))
+      .sort()
+      .join(" ");
+  const isLenisClassOnly = (record: MutationRecord) =>
+    record.attributeName === "class" &&
+    withoutLenisClasses(record.oldValue) ===
+      withoutLenisClasses((record.target as Element).getAttribute("class"));
+  const observer = new MutationObserver((records) => {
+    if (!records.every(isLenisClassOnly)) sync();
+  });
   const options = {
     attributes: true,
+    attributeOldValue: true,
     attributeFilter: [
       "style",
       "class",

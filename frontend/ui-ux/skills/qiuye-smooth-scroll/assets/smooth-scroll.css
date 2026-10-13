@@ -1,4 +1,9 @@
 /* Merge with existing root styles; preserve scroll-margin / scroll-padding. */
+
+/* Optional. This makes every scrollTo/scrollIntoView without an explicit
+   `behavior` smooth, including router scroll resets on navigation. Keep it only
+   if anchor/programmatic smoothness is wanted; otherwise pass
+   behavior: "smooth" per call. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;

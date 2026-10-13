@@ -53,7 +53,7 @@ export function SmoothPageScroll() {
 
 ## CSS 与锚点
 
-[基础样式](../assets/smooth-scroll.css) 是根滚动所需的最小子集。只在非减少动态效果模式启用 CSS 平滑；保留项目已有 scroll-margin/scroll-padding。
+[基础样式](../assets/smooth-scroll.css) 是根滚动所需的最小子集。只在非减少动态效果模式启用 CSS 平滑；保留项目已有 scroll-margin/scroll-padding。其中 `html { scroll-behavior: smooth }` 是可选项：它会让所有未指定 `behavior` 的 `scrollTo` / `scrollIntoView` 变成平滑滚动，包括路由切换时的滚动复位（新页面会从旧位置滑到顶部）。需要原生锚点平滑时才保留，否则删掉并在需要的调用处显式传 `behavior: "smooth"`。
 
 模板 `anchors: false`，点击捕获阶段先释放惯性，浏览器负责锚点 URL、焦点与历史。不要再同时启用另一套锚点拦截器。若选择 Lenis 的 anchors 功能，应以安装版本实际行为验证 URL、焦点、修饰键点击、路由同路径不同 query 和不可见目标。
 

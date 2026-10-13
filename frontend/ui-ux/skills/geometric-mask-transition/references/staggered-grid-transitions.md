@@ -240,7 +240,7 @@ function setRectScale(
 - alpha mask 里透明背景隐藏 target，非透明 rect 显示 target。颜色黑白不重要，alpha 才重要。
 - SVG id 必须按组件实例/事务唯一，避免多个 demo 或 Strict Mode 实例冲突。
 - 完成后清除 `mask`、`mask-image`、`-webkit-mask`、`-webkit-mask-image`、repeat/mode 属性与 defs。
-- `CSS.supports()` 只证明语法可接受。必要时检查 target 的 computed mask；实际仍为 `none` 时回退到简单 target opacity/clip reveal。
+- `CSS.supports()` 只证明语法可接受；computed mask 为 `none` 只能说明声明被丢弃。反过来，computed 值保留为 `url(#id)` **不代表**引擎能把 SVG `<mask>` 作用到 HTML 元素上。只在已逐帧验证过的引擎启用该架构，其余直接回退到简单 target opacity/clip reveal。
 - 若只需硬边且目标浏览器可靠支持 inline SVG fragment，`clipPath` 也可表达 rect union；需要 alpha、羽化或透明度时使用 mask。
 
 ## 架构 C：source staggered grid exit
@@ -264,7 +264,7 @@ source-exit 的执行顺序：
 
 source 是已有的 current layer，不要给它复用“删除本事务节点”的 data attribute。只标记临时 target 和 defs；source 上只挂可恢复 class/style，避免通用 cleanup 把当前页面一起删除。
 
-清理 source 时至少移除 `mask`、`mask-image`、`-webkit-mask`、`-webkit-mask-image`、repeat/mode 属性、临时 opacity、z-index class 和 defs。`CSS.supports()` 之外再检查 computed mask；失败时让上层 source 做 `opacity: 1 -> 0` 或直接提交 target，取消时恢复 source opacity。不要回退成层级语义相反的 target entrance。
+清理 source 时至少移除 `mask`、`mask-image`、`-webkit-mask`、`-webkit-mask-image`、repeat/mode 属性、临时 opacity、z-index class 和 defs。能力判断同架构 B：`CSS.supports()` 与 computed mask 都不能证明 SVG mask 真正生效，按已验证引擎放行；不满足时让上层 source 做 `opacity: 1 -> 0` 或直接提交 target，取消时恢复 source opacity。不要回退成层级语义相反的 target entrance。
 
 ## 首帧、取消与 resize
 

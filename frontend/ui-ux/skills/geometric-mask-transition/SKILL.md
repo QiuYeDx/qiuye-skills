@@ -1,21 +1,15 @@
 ---
 name: geometric-mask-transition
 description: >-
-  Design, implement, debug, and validate geometric reveal transitions for UI
-  state changes, route handoffs, loading exits, modals, media, and scenes. Use
-  for apertures, directional wipes, staggered tile/grid/mosaic reveals and
-  exits, matrix-wave transitions, incoming-view reveals, outgoing-view
-  mask-outs, clip-path, CSS mask-image, SVG masks, View Transition API, and
-  canvas/WebGL mattes. Covers layer architecture, arbitrary-origin geometry,
-  DOM commit timing, interruption, cleanup, reduced motion, fallbacks,
-  performance, and frame-by-frame QA. Do not use for static edge fades or
-  routine opacity/slide micro-interactions. Triggers on: "reveal transition",
-  "geometric mask", "clip-path reveal", "radial wipe", "shape wipe",
-  "transition matte", "tile/grid/mosaic reveal", "matrix transition",
-  "source exit", "outgoing view mask-out", "wavefront stagger", "几何遮罩",
-  "揭幕", "遮罩过渡", "图形过渡", "圆形揭幕", "矩阵转场", "方块揭示",
-  "网格揭示", "马赛克揭示", "方块矩阵", "涟漪转场", "源视图退场",
-  "退场遮罩".
+  Design, implement, debug and validate geometric reveal / mask-out transitions
+  between two UI states: apertures, radial and directional wipes, staggered
+  tile/grid/mosaic and matrix-wave reveals, source-view exits. Covers choosing
+  between clip-path, CSS mask-image, SVG masks, View Transition API and
+  canvas/WebGL mattes, plus layer architecture, DOM commit timing, interruption,
+  reduced motion, fallbacks and frame-by-frame QA. Use for 几何遮罩、揭幕、
+  遮罩过渡、圆形揭幕、矩阵 / 方块 / 网格 / 马赛克揭示、涟漪转场、源视图退场.
+  Not for static edge fades (use qiuye-edge-gradient-mask) or routine
+  opacity/slide micro-interactions.
 ---
 
 # Geometric Mask Transition

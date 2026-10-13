@@ -306,8 +306,9 @@ function transitionTo(commit: () => void | Promise<void>) {
 .aperture-source {
   --x: 50%;
   --y: 50%;
-  --r: 0px;
   --feather: 4px;
+  /* 从 -feather 起步：--r 为 0 时羽化带已在中心露出半透明小孔 */
+  --r: calc(-1 * var(--feather));
   -webkit-mask-image: radial-gradient(
     circle at var(--x) var(--y),
     transparent 0 var(--r),
@@ -325,7 +326,8 @@ function transitionTo(commit: () => void | Promise<void>) {
 若项目已有 Motion，直接用 motion values 更新局部 CSS 变量；不要每帧 set React state：
 
 ```tsx
-const radius = useMotionValue(0);
+// 从 -feather 起步，结束于 coverRadius + feather，首尾帧都不残留羽化带
+const radius = useMotionValue(-4);
 const maskImage = useMotionTemplate`radial-gradient(
   circle at ${x}px ${y}px,
   transparent 0 ${radius}px,
@@ -412,6 +414,8 @@ export async function viewTransitionReveal(
     window.innerHeight,
     origin,
   );
+  // 移动端动态工具栏：root 快照按大视口尺寸（约 100lvh）截取，可能高于 innerHeight。
+  // 需要覆盖完整快照时，用 100lvh 探针元素的高度或给半径留余量。
   root.style.setProperty("--vt-x", `${origin.x}px`);
   root.style.setProperty("--vt-y", `${origin.y}px`);
   root.style.setProperty("--vt-r", `${radius}px`);
